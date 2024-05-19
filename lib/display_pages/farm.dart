@@ -1,5 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'package:aig/API/disease_recognition.dart';
+import 'package:aig/API/leaf_image_upload.dart';
 import 'package:aig/update_pages/farm.dart.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -148,6 +150,21 @@ class _ProfileDetailPageState extends State<FarmProfileDetailPage> {
                       ),
                     ),
                   ]),
+                  SizedBox(width: 20),
+                    OutlinedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => DiseaseRecognition()),
+                        );
+                      },
+                      style: AppButton.buttonStyleBlack,
+                      child: Text(
+                        'Recognition',
+                        style: AppText.button,
+                      ),
+                    ),
                   SizedBox(height: 30),
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: paddingWidth),

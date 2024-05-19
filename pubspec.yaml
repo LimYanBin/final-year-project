@@ -42,6 +42,7 @@ dependencies:
   hexcolor: ^3.0.1
   google_fonts: ^6.2.1
   image_picker: ^1.1.1
+  tflite: ^1.1.2
 
 dev_dependencies:
   flutter_test:
@@ -97,18 +98,26 @@ flutter:
   fonts:
     - family: Roboto
       fonts :
-        - asset: fonts/Roboto-Black.ttf
-        - asset: fonts/Roboto-BlackItalic.ttf
-        - asset: fonts/Roboto-Bold.ttf
-        - asset: fonts/Roboto-BoldItalic.ttf
-        - asset: fonts/Roboto-Italic.ttf
-        - asset: fonts/Roboto-Light.ttf
-        - asset: fonts/Roboto-LightItalic.ttf
-        - asset: fonts/Roboto-Medium.ttf
-        - asset: fonts/Roboto-MediumItalic.ttf
-        - asset: fonts/Roboto-Regular.ttf
-        - asset: fonts/Roboto-Thin.ttf
-        - asset: fonts/Roboto-ThinItalic.ttf
+        - asset: assets/fonts/Roboto-Black.ttf
+        - asset: assets/fonts/Roboto-BlackItalic.ttf
+        - asset: assets/fonts/Roboto-Bold.ttf
+        - asset: assets/fonts/Roboto-BoldItalic.ttf
+        - asset: assets/fonts/Roboto-Italic.ttf
+        - asset: assets/fonts/Roboto-Light.ttf
+        - asset: assets/fonts/Roboto-LightItalic.ttf
+        - asset: assets/fonts/Roboto-Medium.ttf
+        - asset: assets/fonts/Roboto-MediumItalic.ttf
+        - asset: assets/fonts/Roboto-Regular.ttf
+        - asset: assets/fonts/Roboto-Thin.ttf
+        - asset: assets/fonts/Roboto-ThinItalic.ttf
+
+  assets:
+    - assets/model/Potato.tflite
+    - assets/model/potato_labels.txt
+    - assets/model/Strawberry.tflite
+    - assets/model/strawberry_labels.txt
+    - assets/model/Tomato.tflite
+    - assets/model/tomato_labels.txt
 
 
   # For details regarding fonts from package dependencies,
