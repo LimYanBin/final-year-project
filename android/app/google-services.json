@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "1085304271669",
+    "project_id": "finalyearproject-cd51e",
+    "storage_bucket": "finalyearproject-cd51e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1085304271669:android:18214af12dc05a1e14927c",
+        "android_client_info": {
+          "package_name": "com.example.aig"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBpbYfXrZiCCXhMkh1jUn72yG22NEx9U1E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1085304271669:android:31255189d4aa38aa14927c",
+        "android_client_info": {
+          "package_name": "com.example.fyp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBpbYfXrZiCCXhMkh1jUn72yG22NEx9U1E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

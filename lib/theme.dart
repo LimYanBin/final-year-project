@@ -1,0 +1,136 @@
+import 'package:flutter/material.dart';
+
+class AppC {
+  static const Color lBlue = Color(0xFFD1FBF2);
+  static const Color dBlue = Color.fromARGB(255, 170, 211, 235);
+  static const Color green1 = Color(0xFF6FA34F);
+  static const Color green2 = Color(0xFF558564);
+  static const Color red = Color(0xFFEB3223);
+  static const Color black = Color(0xFF001011);
+  static const Color bgdWhite = Color(0xFFFFFCF2);
+  static const Color white = Color(0xFFFFFFFF);
+  static const Color lGrey = Color(0xFFD9D9D9);
+  static const Color dGrey = Color(0xFF706F6F);
+  static const Color gold = Color.fromARGB(255, 238, 191, 62);
+}
+
+class AppText {
+  static const TextStyle title = TextStyle(
+    fontSize: 24.0,
+    fontWeight: FontWeight.w500,
+    color: AppC.black,
+    fontFamily: 'Roboto',
+  );
+
+  static const TextStyle title2 = TextStyle(
+    fontSize: 20.0,
+    fontWeight: FontWeight.w500,
+    color: AppC.black,
+    fontFamily: 'Roboto',
+  );
+
+  static const TextStyle text = TextStyle(
+    fontFamily: 'Roboto',
+    color: AppC.black,
+    fontWeight: FontWeight.normal,
+    fontSize: 18.0,
+  );
+
+  static const TextStyle text2 = TextStyle(
+    fontFamily: 'Roboto',
+    color: AppC.black,
+    fontWeight: FontWeight.normal,
+    fontSize: 12.0,
+  );
+
+  static const TextStyle button = TextStyle(
+    fontFamily: 'Roboto',
+    color: AppC.bgdWhite,
+    fontWeight: FontWeight.normal,
+    fontSize: 18.0,
+  );
+  //out of stock
+  static const TextStyle status1 = TextStyle(
+    fontFamily: 'Roboto',
+    color: AppC.red,
+    fontWeight: FontWeight.normal,
+    fontSize: 18.0,
+  );
+  //available
+  static const TextStyle status2 = TextStyle(
+    fontFamily: 'Roboto',
+    color: AppC.green1,
+    fontWeight: FontWeight.normal,
+    fontSize: 18.0,
+  );
+
+  static const TextStyle message = TextStyle(
+    fontFamily: 'Roboto',
+    color: AppC.green1,
+    fontWeight: FontWeight.normal,
+    fontSize: 18.0,
+  );
+}
+
+class AppButton {
+  static final ButtonStyle buttonStyleCreate = OutlinedButton.styleFrom(
+      backgroundColor: AppC.green1,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      side: BorderSide(color: AppC.green1, width: 2),
+      fixedSize: Size(180, 40));
+
+  static final ButtonStyle buttonStyleAdd = OutlinedButton.styleFrom(
+      backgroundColor: AppC.green1,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      side: BorderSide(color: AppC.green1, width: 2),
+      fixedSize: Size(200, 40));
+
+  static final ButtonStyle buttonStyleUpdate = OutlinedButton.styleFrom(
+      backgroundColor: AppC.green1,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      side: BorderSide(color: AppC.green1, width: 2),
+      fixedSize: Size(150, 40));
+
+  static final ButtonStyle buttonStyleDelete = OutlinedButton.styleFrom(
+      backgroundColor: AppC.red,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      side: BorderSide(color: AppC.red, width: 2),
+      fixedSize: Size(150, 40));
+
+  static final ButtonStyle buttonStyleBlack = OutlinedButton.styleFrom(
+    backgroundColor: AppC.dGrey,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(10),
+    ),
+    side: BorderSide(color: AppC.dGrey, width: 2),
+  );
+}
+
+class AppTextField {
+  static const TextStyle textField = TextStyle(
+    backgroundColor: AppC.white,
+  );
+}
+
+class AppBoxDecoration {
+  static final BoxDecoration box = BoxDecoration(
+    color: AppC.white,
+    borderRadius: BorderRadius.circular(8.0),
+    border: Border.all(color: AppC.black),
+  );
+
+  static final BoxConstraints boxConstraints = BoxConstraints(
+    minHeight: 50,
+    minWidth: 300,
+  );
+
+  
+}

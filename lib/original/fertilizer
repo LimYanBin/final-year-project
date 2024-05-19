@@ -1,0 +1,93 @@
+Future<void> _loadUserData() async {
+    DocumentSnapshot userDoc = await _database.getUserData(widget.userId);
+    setState(() {
+      _profileImageUrl = userDoc['profileImageUrl'];
+      _nameController.text = userDoc['name'];
+      _descriptionController.text = userDoc['description'];
+      _stockStatus = userDoc['stockStatus'];
+    });
+  }
+
+  Future<void> _updateUserData() async {
+    if (_formKey.currentState!.validate()) {
+      await _database.updateUserData(widget.userId, {
+        'profileImageUrl': _profileImageUrl,
+        'name': _nameController.text,
+        'description': _descriptionController.text,
+        'stockStatus': _stockStatus,
+      });
+      Navigator.pop(context);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Update Profile'),
+      ),
+      body: _profileImageUrl == null
+          ? Center(child: CircularProgressIndicator())
+          : Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Form(
+                key: _formKey,
+                child: ListView(
+                  children: [
+                    _profileImageUrl != null
+                        ? Image.network(_profileImageUrl!)
+                        : Placeholder(fallbackHeight: 200.0),
+                    TextFormField(
+                      controller: _nameController,
+                      decoration: InputDecoration(labelText: 'Name'),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter a name';
+                        }
+                        return null;
+                      },
+                    ),
+                    TextFormField(
+                      controller: _descriptionController,
+                      decoration: InputDecoration(labelText: 'Description'),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter a description';
+                        }
+                        return null;
+                      },
+                    ),
+                    SizedBox(height: 16.0),
+                    Text('Stock Status'),
+                    RadioListTile<int>(
+                      title: Text('Available'),
+                      value: 1,
+                      groupValue: _stockStatus,
+                      onChanged: (value) {
+                        setState(() {
+                          _stockStatus = value!;
+                        });
+                      },
+                    ),
+                    RadioListTile<int>(
+                      title: Text('Out of Stock'),
+                      value: 0,
+                      groupValue: _stockStatus,
+                      onChanged: (value) {
+                        setState(() {
+                          _stockStatus = value!;
+                        });
+                      },
+                    ),
+                    SizedBox(height: 16.0),
+                    ElevatedButton(
+                      onPressed: _updateUserData,
+                      child: Text('Done'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+    );
+  }
+}
