@@ -18,13 +18,14 @@ class _PesticidePageState extends State<AddPesticide> {
   final TextEditingController controller = TextEditingController();
 
   //Variables to store the data
-  String? status;
+  int? status = -1;
   String? name;
   String? description;
 
   //Variables to keep track of empty text fields
   bool _nameError = false;
   bool _descriptionError = false;
+   bool _statusError = false;
 
   //Image
   String? uploadedImageUrl =
@@ -39,22 +40,14 @@ class _PesticidePageState extends State<AddPesticide> {
     super.dispose();
   }
 
-  int getStatusValue() {
-    if (status == 'Available') {
-      return 1;
-    } else if (status == 'Out of Stock') {
-      return 0;
-    }
-    return 1;
-  }
-
   // Method to validate input fields
   bool validateInputs() {
     setState(() {
       _nameError = (name == null || name!.isEmpty);
       _descriptionError = (description == null || description!.isEmpty);
+      _statusError = (status == null || status!.isNegative);
     });
-    return !_nameError && !_descriptionError;
+    return !_nameError && !_descriptionError && !_statusError;
   }
 
   Future<void> create() async {
@@ -63,7 +56,7 @@ class _PesticidePageState extends State<AddPesticide> {
     });
 
     await db.create_pesticide(
-        name!, description!, uploadedImageUrl!, getStatusValue());
+        name!, description!, uploadedImageUrl!, status!);
 
     setState(() {
       isLoading = false;
@@ -208,29 +201,44 @@ class _PesticidePageState extends State<AddPesticide> {
                   padding: EdgeInsets.fromLTRB(0, 5, 0, 5),
                   child: Column(
                     children: [
-                      RadioListTile<String>(
+                      CustomRadioListTile<int>(
                         title: Text('Out of Stock', style: AppText.status1),
-                        value: 'Out of Stock',
+                        value: 0,
                         groupValue: status,
+                        showError: _statusError,
                         onChanged: (value) {
                           setState(() {
                             status = value;
+                            _statusError = false;
                           });
                         },
                       ),
-                      RadioListTile<String>(
+                      CustomRadioListTile<int>(
                         title: Text('Available', style: AppText.status2),
-                        value: 'Available',
+                        value: 1,
                         groupValue: status,
+                        showError: _statusError,
                         onChanged: (value) {
                           setState(() {
                             status = value;
+                            _statusError = false;
                           });
                         },
                       ),
                     ],
                   ),
                 ),
+                if (_statusError)
+                  Align(
+                    alignment: Alignment.topLeft,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
+                      child: Text(
+                        'Please select a status',
+                        style: AppText.warning
+                      ),
+                    ),
+                  ),
                 SizedBox(height: 30),
                 Align(
                   alignment: Alignment.center,

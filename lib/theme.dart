@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class AppC {
-  static const Color lBlue = Color(0xFFD1FBF2);
+  static const Color lBlue = Color.fromARGB(255, 65, 221, 187);
   static const Color dBlue = Color.fromARGB(255, 170, 211, 235);
   static const Color green1 = Color(0xFF6FA34F);
   static const Color green2 = Color(0xFF558564);
@@ -12,6 +12,7 @@ class AppC {
   static const Color lGrey = Color(0xFFD9D9D9);
   static const Color dGrey = Color(0xFF706F6F);
   static const Color gold = Color.fromARGB(255, 238, 191, 62);
+  static const Color warning = Color.fromARGB(255, 180, 68, 24);
 }
 
 class AppText {
@@ -39,6 +40,13 @@ class AppText {
   static const TextStyle text2 = TextStyle(
     fontFamily: 'Roboto',
     color: AppC.black,
+    fontWeight: FontWeight.normal,
+    fontSize: 12.0,
+  );
+
+  static const TextStyle warning = TextStyle(
+    fontFamily: 'Roboto',
+    color: AppC.warning,
     fontWeight: FontWeight.normal,
     fontSize: 12.0,
   );
@@ -132,5 +140,63 @@ class AppBoxDecoration {
     minWidth: 300,
   );
 
-  
+  static final BoxDecoration mapBox = BoxDecoration(
+    border: Border.all(color: Colors.black, width: 2), // Border color and width
+    borderRadius: BorderRadius.circular(10),
+  );
+}
+
+class CustomRadioListTile<T> extends StatelessWidget {
+  final T value;
+  final T? groupValue;
+  final ValueChanged<T?> onChanged;
+  final Widget title;
+  final bool showError;
+
+  CustomRadioListTile({
+    super.key, 
+    required this.value,
+    required this.groupValue,
+    required this.onChanged,
+    required this.title,
+    required this.showError,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      leading: GestureDetector(
+        onTap: () {
+          onChanged(value);
+        },
+        child: Container(
+          width: 24,
+          height: 24,
+          decoration: BoxDecoration(
+            shape: BoxShape.rectangle,
+            border: Border.all(
+              color: value == groupValue 
+              ? AppC.lBlue 
+              : showError
+                ? AppC.warning
+                : AppC.dGrey,
+              width: 2.0,
+            ),
+            color: value == groupValue ? AppC.lBlue : Colors.transparent,
+          ),
+          child: value == groupValue
+              ? Icon(
+                  Icons.check,
+                  size: 20.0,
+                  color: AppC.black,
+                )
+              : null,
+        ),
+      ),
+      title: title,
+      onTap: () {
+        onChanged(value);
+      },
+    );
+  }
 }

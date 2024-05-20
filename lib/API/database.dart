@@ -28,13 +28,27 @@ class Database {
     await col.add(data);
   }
 
-  Future<void> create_farm(String name, String description, String url, int status) async {
+  Future<void> create_farm({
+    required String name, 
+    required String description, 
+    required String address, 
+    required String url, 
+    required int status, 
+    required int model,
+    required List<String> fertilizer,
+    required List<String> pesticide,
+    }) async {
+
     final col = FirebaseFirestore.instance.collection('farm');
     final data = <String, dynamic>{
       "Name": name,
       "Description": description,
+      'Address': address,
       'Url': url,
-      'Status': status
+      'Status': status,
+      'Model': model,
+      'Fertilizer': { for (var e in fertilizer) e : {'amount': 0} },
+      'Pestcide': { for (var e in pesticide) e : {'amount': 0} },
     };
 
     await col.add(data);

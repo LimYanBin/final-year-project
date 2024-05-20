@@ -139,6 +139,7 @@ class _FarmPageState extends State<FarmPage> {
       ),
     );
   }
+  
   // Control for the success create message
   @override
   void didChangeDependencies() {
@@ -217,7 +218,7 @@ class ProfileCard extends StatelessWidget {
                       children: [
                         Icon(
                           profile['Status'] == 1
-                              ? Icons.favorite
+                              ? Icons.eco
                               : Icons.warning,
                           color:
                               profile['Status'] == 1 ? AppC.green1 : AppC.red,

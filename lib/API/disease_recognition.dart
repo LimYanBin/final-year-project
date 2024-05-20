@@ -24,13 +24,11 @@ class _DiseaseRecognitionState extends State<DiseaseRecognition> {
     loadModel();
   }
 
-  //remember to remove print
   Future<void> loadModel() async {
-    String? res = await Tflite.loadModel(
+    await Tflite.loadModel(
       model: 'assets/model/Potato.tflite',
       labels: 'assets/model/potato_labels.txt',
     );
-    print(res);
   }
 
   Future<void> pickImage() async {

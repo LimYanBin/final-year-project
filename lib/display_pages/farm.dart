@@ -1,7 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:aig/API/disease_recognition.dart';
-import 'package:aig/API/leaf_image_upload.dart';
 import 'package:aig/update_pages/farm.dart.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -197,7 +196,7 @@ class _ProfileDetailPageState extends State<FarmProfileDetailPage> {
                             children: [
                               Icon(
                                 profile['Status'] == 1
-                                    ? Icons.favorite
+                                    ? Icons.eco
                                     : Icons.warning,
                                 color: profile['Status'] == 1
                                     ? Colors.green
