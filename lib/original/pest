@@ -1,48 +1,34 @@
-import 'dart:async';
-
-import 'package:aig/API/database.dart';
-import 'package:aig/add_pages/farm.dart';
-import 'package:aig/display_pages/farm.dart';
-import 'package:aig/pages/auth.dart';
-import 'package:aig/theme.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:aig/add_pages/pesticide.dart';
+import 'package:aig/display_pages/both.dart';
+import 'package:aig/theme.dart';
+import 'package:aig/API/database.dart';
 
-class FarmPage extends StatefulWidget {
+class PesticidePage extends StatefulWidget {
   final String userId;
 
-  const FarmPage({super.key, required this.userId});
+  const PesticidePage({super.key, required this.userId});
 
   @override
-  State<FarmPage> createState() => _FarmPageState();
+  State<PesticidePage> createState() => _PesticidePageState();
 }
 
-class _FarmPageState extends State<FarmPage> {
-  final Database db = Database();
+class _PesticidePageState extends State<PesticidePage> {
+  // Database
+  Database db = Database();
 
   // Success message from add pages
   String? _message;
-  Timer? _messageClearTimer;
-
-  @override
-  void dispose() {
-    _messageClearTimer?.cancel();
-    super.dispose();
-  }
-
-  void _signOut() async {
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (context) => AuthScreen()),
-      (Route<dynamic> route) => false,
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
     // padding
     double screenWidth = MediaQuery.of(context).size.width;
     double paddingValue = screenWidth * 0.05;
+
+    // User ID
+    String userId = widget.userId;
 
     return Scaffold(
       backgroundColor: AppC.bgdWhite,
@@ -54,14 +40,8 @@ class _FarmPageState extends State<FarmPage> {
           ),
           child: AppBar(
             backgroundColor: AppC.dBlue,
-            title: Text('AIG - Farm', style: AppText.title),
+            title: Text('AIG - Pesticide', style: AppText.title),
             centerTitle: true,
-            actions: <Widget>[
-              IconButton(
-                icon: Icon(Icons.logout),
-                onPressed: _signOut,
-              ),
-            ],
           ),
         ),
       ),
@@ -107,26 +87,25 @@ class _FarmPageState extends State<FarmPage> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => AddFarm(userId: widget.userId),
-                  ),
+                  MaterialPageRoute(builder: (context) => AddPesticide(userId: userId)),
                 ).then((result) {
                   if (result != null) {
                     setState(() {
                       _message = result;
                     });
-                    _messageClearTimer = Timer(Duration(seconds: 5), () {
-                      if (mounted) {
-                        setState(() {
-                          _message = null;
-                        });
-                      }
+                    Future.delayed(Duration(seconds: 5), () {
+                      setState(() {
+                        _message = null;
+                      });
                     });
                   }
                 });
               },
               style: AppButton.buttonStyleAdd,
-              child: Text('Add New Profile', style: AppText.button),
+              child: Text(
+                'Add New Profile',
+                style: AppText.button,
+              ),
             ),
           ),
           SizedBox(height: 10),
@@ -134,10 +113,11 @@ class _FarmPageState extends State<FarmPage> {
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: StreamBuilder<QuerySnapshot>(
-                stream: db.retrieve_farm(widget.userId),
+                stream: db.retrieve_pesticide(userId),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
+                    return Center(
+                      child: CircularProgressIndicator());
                   }
 
                   if (snapshot.hasError) {
@@ -145,7 +125,7 @@ class _FarmPageState extends State<FarmPage> {
                   }
 
                   if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                    return Center(child: Text('No farm profiles found.'));
+                    return SizedBox.shrink();
                   }
 
                   final profiles = snapshot.data!.docs;
@@ -154,9 +134,10 @@ class _FarmPageState extends State<FarmPage> {
                     itemCount: profiles.length,
                     itemBuilder: (context, index) {
                       final doc = profiles[index];
-                      final profile = doc.data() as Map<String, dynamic>;
+                      final profile =
+                          profiles[index].data() as Map<String, dynamic>;
                       profile['id'] = doc.id;
-                      return ProfileCard(profile: profile, userId: widget.userId);
+                      return ProfileCard(profile: profile, userId: userId,);
                     },
                   );
                 },
@@ -168,22 +149,22 @@ class _FarmPageState extends State<FarmPage> {
     );
   }
 
+  // Control for the success create message
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    final String? message = ModalRoute.of(context)!.settings.arguments as String?;
+    final String? message =
+        ModalRoute.of(context)!.settings.arguments as String?;
     if (message != null) {
       setState(() {
         _message = message;
       });
 
-      _messageClearTimer = Timer(Duration(seconds: 5), () {
-        if (mounted) {
-          setState(() {
-            _message = null;
-          });
-        }
+      Future.delayed(Duration(seconds: 5), () {
+        setState(() {
+          _message = null;
+        });
       });
     }
   }
@@ -207,15 +188,13 @@ class ProfileCard extends StatelessWidget {
     return InkWell(
       onTap: () {
         Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => FarmProfileDetailPage(
-              profile: profile,
-              colName: 'farm',
-              userId: userId,
-            ),
-          ),
-        );
+            context,
+            MaterialPageRoute(
+                builder: (context) => ProfileDetailPage(
+                      profile: profile,
+                      colName: 'pesticide',
+                      userId: userId,
+                    )));
       },
       child: Card(
         shape: RoundedRectangleBorder(
@@ -228,9 +207,8 @@ class ProfileCard extends StatelessWidget {
             children: [
               Container(
                 decoration: BoxDecoration(
-                  border: Border.all(color: AppC.dGrey, width: 2.0),
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
+                    border: Border.all(color: AppC.dGrey, width: 2.0),
+                    borderRadius: BorderRadius.circular(8.0)),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(6.0),
                   child: Image.network(
@@ -253,13 +231,15 @@ class ProfileCard extends StatelessWidget {
                     Row(
                       children: [
                         Icon(
-                          profile['Status'] == 1 ? Icons.eco : Icons.warning,
+                          profile['Status'] == 1
+                              ? Icons.check_circle
+                              : Icons.cancel,
                           color:
                               profile['Status'] == 1 ? AppC.green1 : AppC.red,
                         ),
                         SizedBox(width: 5.0),
                         Text(
-                          profile['Status'] == 1 ? 'Healthy' : 'Disease',
+                          profile['Status'] == 1 ? 'Available' : 'Out of Stock',
                           style: profile['Status'] == 1
                               ? AppText.status2
                               : AppText.status1,

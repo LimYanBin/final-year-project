@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:aig/pages/auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:aig/add_pages/fertilizer.dart';
@@ -6,7 +9,9 @@ import 'package:aig/theme.dart';
 import 'package:aig/API/database.dart';
 
 class FertilizerPage extends StatefulWidget {
-  const FertilizerPage({super.key});
+  final String userId;
+
+  const FertilizerPage({super.key, required this.userId});
 
   @override
   State<FertilizerPage> createState() => _FertilizerPageState();
@@ -18,12 +23,30 @@ class _FertilizerPageState extends State<FertilizerPage> {
 
   // Success message from add pages
   String? _message;
+  Timer? _messageClearTimer;
+
+  @override
+  void dispose() {
+    _messageClearTimer?.cancel();
+    super.dispose();
+  }
+
+  void _signOut() async {
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => AuthScreen()),
+      (Route<dynamic> route) => false,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     // padding
     double screenWidth = MediaQuery.of(context).size.width;
     double paddingValue = screenWidth * 0.05;
+
+    // User ID
+    String userId = widget.userId;
 
     return Scaffold(
       backgroundColor: AppC.bgdWhite,
@@ -37,6 +60,12 @@ class _FertilizerPageState extends State<FertilizerPage> {
             backgroundColor: AppC.dBlue,
             title: Text('AIG - Fertilizer', style: AppText.title),
             centerTitle: true,
+            actions: <Widget>[
+              IconButton(
+                icon: Icon(Icons.logout),
+                onPressed: _signOut,
+              ),
+            ],
           ),
         ),
       ),
@@ -82,16 +111,18 @@ class _FertilizerPageState extends State<FertilizerPage> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => AddFertilizer()),
+                  MaterialPageRoute(builder: (context) => AddFertilizer(userId: userId)),
                 ).then((result) {
                   if (result != null) {
                     setState(() {
                       _message = result;
                     });
-                    Future.delayed(Duration(seconds: 5), () {
-                      setState(() {
-                        _message = null;
-                      });
+                    _messageClearTimer = Timer(Duration(seconds: 5), () {
+                      if (mounted) {
+                        setState(() {
+                          _message = null;
+                        });
+                      }
                     });
                   }
                 });
@@ -108,10 +139,11 @@ class _FertilizerPageState extends State<FertilizerPage> {
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: StreamBuilder<QuerySnapshot>(
-                stream: db.retrieve_fertilizer(),
+                stream: db.retrieve_fertilizer(userId),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
+                    return Center(
+                      child: CircularProgressIndicator());
                   }
 
                   if (snapshot.hasError) {
@@ -119,7 +151,7 @@ class _FertilizerPageState extends State<FertilizerPage> {
                   }
 
                   if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                    return SizedBox.shrink();
+                    return Center(child: Text('No fertilizer profiles found.'));
                   }
 
                   final profiles = snapshot.data!.docs;
@@ -128,9 +160,10 @@ class _FertilizerPageState extends State<FertilizerPage> {
                     itemCount: profiles.length,
                     itemBuilder: (context, index) {
                       final doc = profiles[index];
-                      final profile = profiles[index].data() as Map<String, dynamic>;
+                      final profile =
+                          profiles[index].data() as Map<String, dynamic>;
                       profile['id'] = doc.id;
-                      return ProfileCard(profile: profile);
+                      return ProfileCard(profile: profile, userId: userId,);
                     },
                   );
                 },
@@ -154,10 +187,12 @@ class _FertilizerPageState extends State<FertilizerPage> {
         _message = message;
       });
 
-      Future.delayed(Duration(seconds: 5), () {
-        setState(() {
-          _message = null;
-        });
+      _messageClearTimer = Timer(Duration(seconds: 5), () {
+        if (mounted) {
+          setState(() {
+            _message = null;
+          });
+        }
       });
     }
   }
@@ -165,8 +200,9 @@ class _FertilizerPageState extends State<FertilizerPage> {
 
 class ProfileCard extends StatelessWidget {
   final Map<String, dynamic> profile;
+  final String userId;
 
-  const ProfileCard({super.key, required this.profile});
+  const ProfileCard({super.key, required this.profile, required this.userId});
 
   // Function for handling maximum characters display
   String truncateWithEllipsis(int maxLength, String text) {
@@ -182,7 +218,11 @@ class ProfileCard extends StatelessWidget {
         Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => ProfileDetailPage(profile: profile, colName: 'fertilizer',)));
+                builder: (context) => ProfileDetailPage(
+                      profile: profile,
+                      colName: 'fertilizer',
+                      userId: userId,
+                    )));
       },
       child: Card(
         shape: RoundedRectangleBorder(

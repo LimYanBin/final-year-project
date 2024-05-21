@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously, avoid_print
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
@@ -12,16 +12,18 @@ import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class AddFarm extends StatefulWidget {
-  const AddFarm({super.key});
+  final String userId;
+  const AddFarm({super.key, required this.userId});
 
   @override
-  State<AddFarm> createState() => _FertilizerPageState();
+  State<AddFarm> createState() => _AddFarmState();
 }
 
-class _FertilizerPageState extends State<AddFarm> {
+class _AddFarmState extends State<AddFarm> {
   Database db = Database();
   final TextEditingController _addressController = TextEditingController();
-  final TextEditingController _searchController = TextEditingController();
+  final TextEditingController _searchFerController = TextEditingController();
+  final TextEditingController _searchPestController = TextEditingController();
 
   // Address
   LatLng? _selectedLocation;
@@ -48,19 +50,26 @@ class _FertilizerPageState extends State<AddFarm> {
   // Loading
   bool isLoading = false;
 
-  //fertilizer
+  // Fertilizer
   List<String> selectedFertilizers = [];
   String searchFer = '';
 
-  //pesticide
+  // Pesticide
   List<String> selectedPesticides = [];
   String searchPest = '';
 
   @override
   void dispose() {
     _addressController.dispose();
-    _searchController.dispose();
+    _searchFerController.dispose();
+    _searchPestController.dispose();
     super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedLocation = LatLng(3.140853, 101.693207); // Default to Malaysia KL
   }
 
   // Method to validate input fields
@@ -80,6 +89,8 @@ class _FertilizerPageState extends State<AddFarm> {
   }
 
   Future<void> create() async {
+    if (!validateInputs()) return;
+
     setState(() {
       isLoading = true;
     });
@@ -93,6 +104,7 @@ class _FertilizerPageState extends State<AddFarm> {
       model: model!,
       fertilizer: selectedFertilizers,
       pesticide: selectedPesticides,
+      uId: widget.userId,
     );
 
     setState(() {
@@ -102,26 +114,24 @@ class _FertilizerPageState extends State<AddFarm> {
     Navigator.pop(context, 'Profile successfully created');
   }
 
-  @override
-  void initState() {
-    super.initState();
-    _selectedLocation = LatLng(3.140853, 101.693207); // Default to Malaysia KL
-  }
-
   void _updateAddress(LatLng location) async {
-    List<Placemark> placemarks = await placemarkFromCoordinates(
-      location.latitude,
-      location.longitude,
-    );
-    if (placemarks.isNotEmpty) {
-      Placemark placemark = placemarks.first;
-      String newAddress =
-          '${placemark.street}, ${placemark.locality}, ${placemark.administrativeArea}, ${placemark.country}';
-      setState(() {
-        _addressController.text = newAddress;
-        _addressError = false;
-        address = newAddress;
-      });
+    try {
+      List<Placemark> placemarks = await placemarkFromCoordinates(
+        location.latitude,
+        location.longitude,
+      );
+      if (placemarks.isNotEmpty) {
+        Placemark placemark = placemarks.first;
+        String newAddress =
+            '${placemark.street}, ${placemark.locality}, ${placemark.administrativeArea}, ${placemark.country}';
+        setState(() {
+          _addressController.text = newAddress;
+          _addressError = false;
+          address = newAddress;
+        });
+      }
+    } catch (e) {
+      print('Error: $e');
     }
   }
 
@@ -130,14 +140,21 @@ class _FertilizerPageState extends State<AddFarm> {
   }
 
   Future<void> _updateMapLocation(String address) async {
-    List<Location> locations = await locationFromAddress(address);
-    if (locations.isNotEmpty) {
-      LatLng newLocation =
-          LatLng(locations.first.latitude, locations.first.longitude);
+    try {
+      List<Location> locations = await locationFromAddress(address);
+      if (locations.isNotEmpty) {
+        LatLng newLocation =
+            LatLng(locations.first.latitude, locations.first.longitude);
+        setState(() {
+          _selectedLocation = newLocation;
+          _moveCamera(newLocation);
+        });
+      }
+    } catch (e) {
       setState(() {
-        _selectedLocation = newLocation;
-        _moveCamera(newLocation);
+        _addressError = true;
       });
+      print('Error: $e');
     }
   }
 
@@ -228,7 +245,10 @@ class _FertilizerPageState extends State<AddFarm> {
                       maxLength: 30,
                       inputFormatters: [LengthLimitingTextInputFormatter(30)],
                       onChanged: (value) {
-                        name = value;
+                        setState(() {
+                          _nameError = value.isEmpty;
+                          name = value;
+                        });
                       },
                     ),
                   ),
@@ -258,7 +278,10 @@ class _FertilizerPageState extends State<AddFarm> {
                             : null,
                       ),
                       onChanged: (value) {
-                        description = value;
+                        setState(() {
+                          _descriptionError = value.isEmpty;
+                          description = value;
+                        });
                       },
                     ),
                   ),
@@ -284,14 +307,15 @@ class _FertilizerPageState extends State<AddFarm> {
                         contentPadding:
                             EdgeInsets.symmetric(horizontal: 10, vertical: 20),
                         alignLabelWithHint: true,
-                        errorText:
-                            _addressError ? 'Address cannot be empty' : null,
+                        errorText: _addressError ? 'Invalid Address' : null,
                       ),
                       onChanged: (value) {
                         setState(() {
                           _addressError = value.isEmpty;
                           address = value;
-                          _updateMapLocation(value);
+                          if (value.isNotEmpty) {
+                            _updateMapLocation(value);
+                          }
                         });
                       },
                     ),
@@ -305,42 +329,43 @@ class _FertilizerPageState extends State<AddFarm> {
                       child: GestureDetector(
                         onVerticalDragUpdate: (_) {},
                         child: GoogleMap(
-                            initialCameraPosition: CameraPosition(
-                              target: _selectedLocation ??
-                                  LatLng(3.140853,
-                                      101.693207), // Default to Malaysia KL if null
-                              zoom: 14,
-                            ),
-                            onMapCreated: (controller) {
-                              _mapController = controller;
-                              if (_selectedLocation != null) {
-                                _moveCamera(_selectedLocation!);
-                              }
-                            },
-                            onTap: (position) {
-                              setState(() {
-                                _selectedLocation = position;
-                                _updateAddress(position);
-                                _moveCamera(position);
-                              });
-                            },
-                            markers: {
-                              if (_selectedLocation != null)
+                          initialCameraPosition: CameraPosition(
+                            target: _selectedLocation ??
+                                LatLng(3.140853,
+                                    101.693207), // Default to Malaysia KL if null
+                            zoom: 14,
+                          ),
+                          onMapCreated: (controller) {
+                            _mapController = controller;
+                            if (_selectedLocation != null) {
+                              _moveCamera(_selectedLocation!);
+                            }
+                          },
+                          onTap: (position) {
+                            setState(() {
+                              _selectedLocation = position;
+                              _updateAddress(position);
+                            });
+                          },
+                          markers: _selectedLocation != null
+                            ? {
                                 Marker(
                                   markerId: MarkerId('selected-location'),
                                   position: _selectedLocation!,
                                 ),
-                            },
-                            gestureRecognizers: {
-                              Factory<PanGestureRecognizer>(
-                                  () => PanGestureRecognizer()),
-                              Factory<ScaleGestureRecognizer>(
-                                  () => ScaleGestureRecognizer()),
-                              Factory<TapGestureRecognizer>(
-                                  () => TapGestureRecognizer()),
-                              Factory<VerticalDragGestureRecognizer>(
-                                  () => VerticalDragGestureRecognizer()),
-                            }),
+                              }
+                            : {},
+                          gestureRecognizers: {
+                            Factory<PanGestureRecognizer>(
+                                () => PanGestureRecognizer()),
+                            Factory<ScaleGestureRecognizer>(
+                                () => ScaleGestureRecognizer()),
+                            Factory<TapGestureRecognizer>(
+                                () => TapGestureRecognizer()),
+                            Factory<VerticalDragGestureRecognizer>(
+                                () => VerticalDragGestureRecognizer()),
+                          },
+                        ),
                       ),
                     ),
                   ),
@@ -417,7 +442,7 @@ class _FertilizerPageState extends State<AddFarm> {
                           title: Text('Potato Model', style: AppText.text),
                           value: 1,
                           groupValue: model,
-                          showError: _statusError,
+                          showError: _modelError,
                           onChanged: (value) {
                             setState(() {
                               model = value;
@@ -429,7 +454,7 @@ class _FertilizerPageState extends State<AddFarm> {
                           title: Text('Strawberry Model', style: AppText.text),
                           value: 2,
                           groupValue: model,
-                          showError: _statusError,
+                          showError: _modelError,
                           onChanged: (value) {
                             setState(() {
                               model = value;
@@ -441,7 +466,7 @@ class _FertilizerPageState extends State<AddFarm> {
                           title: Text('Tomato Model', style: AppText.text),
                           value: 3,
                           groupValue: model,
-                          showError: _statusError,
+                          showError: _modelError,
                           onChanged: (value) {
                             setState(() {
                               model = value;
@@ -478,7 +503,7 @@ class _FertilizerPageState extends State<AddFarm> {
                         Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: TextField(
-                            controller: _searchController,
+                            controller: _searchFerController,
                             decoration: InputDecoration(
                                 prefixIcon: Icon(Icons.search),
                                 hintText: 'Search by name',
@@ -494,7 +519,7 @@ class _FertilizerPageState extends State<AddFarm> {
                         SizedBox(
                           height: 180,
                           child: StreamBuilder<QuerySnapshot>(
-                            stream: db.retrieve_fertilizer(),
+                            stream: db.retrieve_fertilizer(widget.userId),
                             builder: (context, snapshot) {
                               if (snapshot.connectionState ==
                                   ConnectionState.waiting) {
@@ -553,7 +578,8 @@ class _FertilizerPageState extends State<AddFarm> {
                                               activeColor: AppC.lBlue,
                                               checkColor: AppC.dGrey,
                                               side: BorderSide(
-                                                  color: AppC.dGrey, width: 1.5),
+                                                  color: AppC.dGrey,
+                                                  width: 1.5),
                                               materialTapTargetSize:
                                                   MaterialTapTargetSize
                                                       .shrinkWrap,
@@ -584,7 +610,7 @@ class _FertilizerPageState extends State<AddFarm> {
                   Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        'Select Pestcide',
+                        'Select Pesticide',
                         style: AppText.title2,
                       )),
                   Container(
@@ -592,11 +618,11 @@ class _FertilizerPageState extends State<AddFarm> {
                     padding: EdgeInsets.all(8),
                     child: Column(
                       children: [
-                        // Search for Pestcide
+                        // Search for Pesticide
                         Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: TextField(
-                            controller: _searchController,
+                            controller: _searchPestController,
                             decoration: InputDecoration(
                                 prefixIcon: Icon(Icons.search),
                                 hintText: 'Search by name',
@@ -604,7 +630,7 @@ class _FertilizerPageState extends State<AddFarm> {
                                     borderRadius: BorderRadius.circular(10))),
                             onChanged: (value) {
                               setState(() {
-                                searchFer = value.toLowerCase();
+                                searchPest = value.toLowerCase();
                               });
                             },
                           ),
@@ -612,7 +638,7 @@ class _FertilizerPageState extends State<AddFarm> {
                         SizedBox(
                           height: 180,
                           child: StreamBuilder<QuerySnapshot>(
-                            stream: db.retrieve_pesticide(),
+                            stream: db.retrieve_pesticide(widget.userId),
                             builder: (context, snapshot) {
                               if (snapshot.connectionState ==
                                   ConnectionState.waiting) {
@@ -640,8 +666,8 @@ class _FertilizerPageState extends State<AddFarm> {
                                 itemCount: pesticideProfile.length,
                                 itemBuilder: (context, index) {
                                   final pesticide = pesticideProfile[index];
-                                  final isSelected = selectedPesticides
-                                      .contains(pesticide.id);
+                                  final isSelected =
+                                      selectedPesticides.contains(pesticide.id);
                                   return Padding(
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 8.0, vertical: 8),
@@ -662,8 +688,7 @@ class _FertilizerPageState extends State<AddFarm> {
                                                           .add(pesticide.id);
                                                     } else {
                                                       selectedPesticides
-                                                          .remove(
-                                                              pesticide.id);
+                                                          .remove(pesticide.id);
                                                     }
                                                   },
                                                 );
@@ -671,7 +696,8 @@ class _FertilizerPageState extends State<AddFarm> {
                                               activeColor: AppC.lBlue,
                                               checkColor: AppC.dGrey,
                                               side: BorderSide(
-                                                  color: AppC.dGrey, width: 1.5),
+                                                  color: AppC.dGrey,
+                                                  width: 1.5),
                                               materialTapTargetSize:
                                                   MaterialTapTargetSize
                                                       .shrinkWrap,
@@ -702,9 +728,7 @@ class _FertilizerPageState extends State<AddFarm> {
                   Align(
                     alignment: Alignment.center,
                     child: OutlinedButton(
-                      onPressed: () {
-                        if (validateInputs()) create();
-                      },
+                      onPressed: create,
                       style: AppButton.buttonStyleCreate,
                       child: Text(
                         'Create',

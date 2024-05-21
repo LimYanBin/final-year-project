@@ -16,6 +16,7 @@ class AppC {
 }
 
 class AppText {
+
   static const TextStyle title = TextStyle(
     fontSize: 24.0,
     fontWeight: FontWeight.w500,
@@ -42,6 +43,13 @@ class AppText {
     color: AppC.black,
     fontWeight: FontWeight.normal,
     fontSize: 12.0,
+  );
+
+  static const TextStyle text3 = TextStyle(
+    fontFamily: 'Roboto',
+    color: AppC.green1,
+    fontWeight: FontWeight.normal,
+    fontSize: 15.0,
   );
 
   static const TextStyle warning = TextStyle(
@@ -120,6 +128,14 @@ class AppButton {
     ),
     side: BorderSide(color: AppC.dGrey, width: 2),
   );
+
+  static final ButtonStyle buttonStyleAuth = OutlinedButton.styleFrom(
+      backgroundColor: AppC.dGrey,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      side: BorderSide(color: AppC.black, width: 2),
+      fixedSize: Size(250, 40));
 }
 
 class AppTextField {

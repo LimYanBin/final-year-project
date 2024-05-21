@@ -10,9 +10,14 @@ import 'package:aig/API/database.dart';
 class FarmProfileDetailPage extends StatefulWidget {
   final Map<String, dynamic> profile;
   final String colName;
+  final String userId;
 
-  const FarmProfileDetailPage(
-      {super.key, required this.profile, required this.colName});
+  const FarmProfileDetailPage({
+    super.key,
+    required this.profile,
+    required this.colName,
+    required this.userId,
+  });
 
   @override
   State<FarmProfileDetailPage> createState() => _ProfileDetailPageState();
@@ -92,7 +97,9 @@ class _ProfileDetailPageState extends State<FarmProfileDetailPage> {
             ],
             Padding(
               padding: EdgeInsets.symmetric(
-                  horizontal: paddingWidth, vertical: paddingHeight),
+                horizontal: paddingWidth,
+                vertical: paddingHeight,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -108,62 +115,70 @@ class _ProfileDetailPageState extends State<FarmProfileDetailPage> {
                     ),
                   ),
                   SizedBox(height: 20),
-                  Row(children: [
-                    OutlinedButton(
-                      onPressed: () {
-                        Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => UpdateFarmProfilePage(
-                                        colName: widget.colName,
-                                        docId: profile['id'])))
-                            .then((result) {
-                          if (result != null) {
-                            setState(() {
-                              _message = result;
-                            });
-                            refreshData();
-                            Future.delayed(Duration(seconds: 5), () {
+                  Row(
+                    children: [
+                      OutlinedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => UpdateFarmProfilePage(
+                                colName: widget.colName,
+                                docId: profile['id'],
+                                userId: widget.userId,
+                              ),
+                            ),
+                          ).then((result) {
+                            if (result != null) {
                               setState(() {
-                                _message = null;
+                                _message = result;
                               });
-                            });
-                          }
-                        });
-                      },
-                      style: AppButton.buttonStyleUpdate,
-                      child: Text(
-                        'Update',
-                        style: AppText.button,
+                              refreshData();
+                              Future.delayed(Duration(seconds: 5), () {
+                                if (mounted) {
+                                  setState(() {
+                                    _message = null;
+                                  });
+                                }
+                              });
+                            }
+                          });
+                        },
+                        style: AppButton.buttonStyleUpdate,
+                        child: Text(
+                          'Update',
+                          style: AppText.button,
+                        ),
                       ),
-                    ),
-                    SizedBox(width: 20),
-                    OutlinedButton(
-                      onPressed: () {
-                        deleteConfirmation(context);
-                      },
-                      style: AppButton.buttonStyleDelete,
-                      child: Text(
-                        'Delete',
-                        style: AppText.button,
+                      SizedBox(width: 20),
+                      OutlinedButton(
+                        onPressed: () {
+                          deleteConfirmation(context);
+                        },
+                        style: AppButton.buttonStyleDelete,
+                        child: Text(
+                          'Delete',
+                          style: AppText.button,
+                        ),
                       ),
-                    ),
-                  ]),
+                    ],
+                  ),
                   SizedBox(width: 20),
-                    OutlinedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => DiseaseRecognition()),
-                        );
-                      },
-                      style: AppButton.buttonStyleBlack,
-                      child: Text(
-                        'Recognition',
-                        style: AppText.button,
-                      ),
+                  OutlinedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => DiseaseRecognition(),
+                        ),
+                      );
+                    },
+                    style: AppButton.buttonStyleBlack,
+                    child: Text(
+                      'Recognition',
+                      style: AppText.button,
                     ),
+                  ),
                   SizedBox(height: 30),
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: paddingWidth),
@@ -176,7 +191,9 @@ class _ProfileDetailPageState extends State<FarmProfileDetailPage> {
                           height: 50,
                           width: 300,
                           padding: EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 10),
+                            horizontal: 10,
+                            vertical: 10,
+                          ),
                           decoration: AppBoxDecoration.box,
                           child: Text(
                             profile['Name'] ?? 'No Name',
@@ -190,7 +207,9 @@ class _ProfileDetailPageState extends State<FarmProfileDetailPage> {
                           height: 50,
                           width: 300,
                           padding: EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 10),
+                            horizontal: 10,
+                            vertical: 10,
+                          ),
                           decoration: AppBoxDecoration.box,
                           child: Row(
                             children: [
@@ -204,12 +223,13 @@ class _ProfileDetailPageState extends State<FarmProfileDetailPage> {
                               ),
                               SizedBox(width: 5.0),
                               Text(
-                                  profile['Status'] == 1
-                                      ? 'Healthy'
-                                      : 'Disease',
-                                  style: profile['Status'] == 1
-                                      ? AppText.status2
-                                      : AppText.status1),
+                                profile['Status'] == 1
+                                    ? 'Healthy'
+                                    : 'Disease',
+                                style: profile['Status'] == 1
+                                    ? AppText.status2
+                                    : AppText.status1,
+                              ),
                             ],
                           ),
                         ),
@@ -218,12 +238,15 @@ class _ProfileDetailPageState extends State<FarmProfileDetailPage> {
                         SizedBox(height: 10),
                         Container(
                           padding: EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 10),
+                            horizontal: 10,
+                            vertical: 10,
+                          ),
                           constraints: AppBoxDecoration.boxConstraints,
                           decoration: AppBoxDecoration.box,
                           child: Text(
-                              profile['Description'] ?? 'No Description',
-                              style: AppText.text),
+                            profile['Description'] ?? 'No Description',
+                            style: AppText.text,
+                          ),
                         ),
                       ],
                     ),
@@ -253,9 +276,7 @@ class _ProfileDetailPageState extends State<FarmProfileDetailPage> {
                   },
                   child: Text('Cancel'),
                 ),
-                Spacer(
-                  flex: 1,
-                ),
+                Spacer(),
                 TextButton(
                   onPressed: () {
                     _deleteProfile(context);
@@ -271,9 +292,8 @@ class _ProfileDetailPageState extends State<FarmProfileDetailPage> {
   }
 
   void _deleteProfile(BuildContext context) async {
-    //database
     final Database db = Database();
-    db.delete(widget.colName, profile['id']);
+    await db.delete(widget.colName, profile['id'], widget.userId);
     Navigator.of(context).pop(); // Dismiss the confirmation dialog
     Navigator.of(context).pop(); // Go back to the previous page
   }
@@ -281,12 +301,14 @@ class _ProfileDetailPageState extends State<FarmProfileDetailPage> {
   Future<void> refreshData() async {
     final Database db = Database();
     DocumentSnapshot profileSnapshot =
-        await db.retrieve_update(widget.colName, profile['id']);
-    setState(() {
-      profile = {
-        ... profileSnapshot.data() as Map<String, dynamic>,
-        'id': profile['id']
-      };
-    });
+        await db.retrieve_update(widget.colName, profile['id'], widget.userId);
+    if (mounted) {
+      setState(() {
+        profile = {
+          ...profileSnapshot.data() as Map<String, dynamic>,
+          'id': profile['id']
+        };
+      });
+    }
   }
 }

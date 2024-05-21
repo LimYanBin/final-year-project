@@ -8,7 +8,8 @@ import 'package:aig/theme.dart';
 import 'package:aig/API/image_upload.dart';
 
 class AddFertilizer extends StatefulWidget {
-  const AddFertilizer({super.key});
+  final String userId;
+  const AddFertilizer({super.key, required this.userId});
 
   @override
   State<AddFertilizer> createState() => _FertilizerPageState();
@@ -57,7 +58,7 @@ class _FertilizerPageState extends State<AddFertilizer> {
     });
 
     await db.create_fertilizer(
-        name!, description!, uploadedImageUrl!, status!);
+        name!, description!, uploadedImageUrl!, status!, widget.userId);
 
     setState(() {
       isLoading = false;
@@ -175,7 +176,8 @@ class _FertilizerPageState extends State<AddFertilizer> {
                       fillColor: AppC.white,
                       border: OutlineInputBorder(),
                       hintText: 'Enter Description',
-                      contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+                      contentPadding:
+                          EdgeInsets.symmetric(horizontal: 10, vertical: 20),
                       alignLabelWithHint: true,
                       errorText: _descriptionError
                           ? 'Description cannot be empty'
@@ -208,10 +210,12 @@ class _FertilizerPageState extends State<AddFertilizer> {
                         groupValue: status,
                         showError: _statusError,
                         onChanged: (value) {
-                          setState(() {
-                            status = value;
-                            _statusError = false;
-                          });
+                          if (mounted) {
+                                setState(() {
+                                  status = value;
+                                  _statusError = false;
+                                });
+                              }
                         },
                       ),
                       CustomRadioListTile<int>(
@@ -220,10 +224,12 @@ class _FertilizerPageState extends State<AddFertilizer> {
                         groupValue: status,
                         showError: _statusError,
                         onChanged: (value) {
-                          setState(() {
-                            status = value;
-                            _statusError = false;
-                          });
+                          if (mounted) {
+                            setState(() {
+                              status = value;
+                              _statusError = false;
+                            });
+                          }
                         },
                       ),
                     ],
@@ -233,11 +239,10 @@ class _FertilizerPageState extends State<AddFertilizer> {
                   Align(
                     alignment: Alignment.topLeft,
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
-                      child: Text(
-                        'Please select a status',
-                        style: AppText.warning
-                      ),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16.0, vertical: 8),
+                      child: Text('Please select a status',
+                          style: AppText.warning),
                     ),
                   ),
                 SizedBox(height: 30),

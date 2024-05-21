@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:aig/pages/auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:aig/add_pages/pesticide.dart';
@@ -6,7 +9,9 @@ import 'package:aig/theme.dart';
 import 'package:aig/API/database.dart';
 
 class PesticidePage extends StatefulWidget {
-  const PesticidePage({super.key});
+  final String userId;
+
+  const PesticidePage({super.key, required this.userId});
 
   @override
   State<PesticidePage> createState() => _PesticidePageState();
@@ -18,12 +23,30 @@ class _PesticidePageState extends State<PesticidePage> {
 
   // Success message from add pages
   String? _message;
+  Timer? _messageClearTimer;
+
+  @override
+  void dispose() {
+    _messageClearTimer?.cancel();
+    super.dispose();
+  }
+
+  void _signOut() async {
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => AuthScreen()),
+      (Route<dynamic> route) => false,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     // padding
     double screenWidth = MediaQuery.of(context).size.width;
     double paddingValue = screenWidth * 0.05;
+
+    // User ID
+    String userId = widget.userId;
 
     return Scaffold(
       backgroundColor: AppC.bgdWhite,
@@ -37,6 +60,12 @@ class _PesticidePageState extends State<PesticidePage> {
             backgroundColor: AppC.dBlue,
             title: Text('AIG - Pesticide', style: AppText.title),
             centerTitle: true,
+            actions: <Widget>[
+              IconButton(
+                icon: Icon(Icons.logout),
+                onPressed: _signOut,
+              ),
+            ],
           ),
         ),
       ),
@@ -82,16 +111,18 @@ class _PesticidePageState extends State<PesticidePage> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => AddPesticide()),
+                  MaterialPageRoute(builder: (context) => AddPesticide(userId: userId)),
                 ).then((result) {
                   if (result != null) {
                     setState(() {
                       _message = result;
                     });
-                    Future.delayed(Duration(seconds: 5), () {
-                      setState(() {
-                        _message = null;
-                      });
+                    _messageClearTimer = Timer(Duration(seconds: 5), () {
+                      if (mounted) {
+                        setState(() {
+                          _message = null;
+                        });
+                      }
                     });
                   }
                 });
@@ -108,7 +139,7 @@ class _PesticidePageState extends State<PesticidePage> {
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: StreamBuilder<QuerySnapshot>(
-                stream: db.retrieve_pesticide(),
+                stream: db.retrieve_pesticide(userId),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Center(child: CircularProgressIndicator());
@@ -119,7 +150,7 @@ class _PesticidePageState extends State<PesticidePage> {
                   }
 
                   if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                    return SizedBox.shrink();
+                    return Center(child: Text('No pesticide profiles found.'));
                   }
 
                   final profiles = snapshot.data!.docs;
@@ -128,10 +159,9 @@ class _PesticidePageState extends State<PesticidePage> {
                     itemCount: profiles.length,
                     itemBuilder: (context, index) {
                       final doc = profiles[index];
-                      final profile =
-                          profiles[index].data() as Map<String, dynamic>;
+                      final profile = doc.data() as Map<String, dynamic>;
                       profile['id'] = doc.id;
-                      return ProfileCard(profile: profile);
+                      return ProfileCard(profile: profile, userId: userId);
                     },
                   );
                 },
@@ -155,10 +185,12 @@ class _PesticidePageState extends State<PesticidePage> {
         _message = message;
       });
 
-      Future.delayed(Duration(seconds: 5), () {
-        setState(() {
-          _message = null;
-        });
+      _messageClearTimer = Timer(Duration(seconds: 5), () {
+        if (mounted) {
+          setState(() {
+            _message = null;
+          });
+        }
       });
     }
   }
@@ -166,8 +198,9 @@ class _PesticidePageState extends State<PesticidePage> {
 
 class ProfileCard extends StatelessWidget {
   final Map<String, dynamic> profile;
+  final String userId;
 
-  const ProfileCard({super.key, required this.profile});
+  const ProfileCard({super.key, required this.profile, required this.userId});
 
   // Function for handling maximum characters display
   String truncateWithEllipsis(int maxLength, String text) {
@@ -181,12 +214,15 @@ class ProfileCard extends StatelessWidget {
     return InkWell(
       onTap: () {
         Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => ProfileDetailPage(
-                      profile: profile,
-                      colName: 'pesticide',
-                    )));
+          context,
+          MaterialPageRoute(
+            builder: (context) => ProfileDetailPage(
+              profile: profile,
+              colName: 'pesticide',
+              userId: userId,
+            ),
+          ),
+        );
       },
       child: Card(
         shape: RoundedRectangleBorder(
@@ -199,8 +235,9 @@ class ProfileCard extends StatelessWidget {
             children: [
               Container(
                 decoration: BoxDecoration(
-                    border: Border.all(color: AppC.dGrey, width: 2.0),
-                    borderRadius: BorderRadius.circular(8.0)),
+                  border: Border.all(color: AppC.dGrey, width: 2.0),
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(6.0),
                   child: Image.network(
@@ -226,8 +263,7 @@ class ProfileCard extends StatelessWidget {
                           profile['Status'] == 1
                               ? Icons.check_circle
                               : Icons.cancel,
-                          color:
-                              profile['Status'] == 1 ? AppC.green1 : AppC.red,
+                          color: profile['Status'] == 1 ? AppC.green1 : AppC.red,
                         ),
                         SizedBox(width: 5.0),
                         Text(

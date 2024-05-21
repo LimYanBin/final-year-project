@@ -10,37 +10,43 @@ import 'package:aig/theme.dart';
 class UpdateFarmProfilePage extends StatefulWidget {
   final String docId;
   final String colName;
-  const UpdateFarmProfilePage(
-      {super.key, required this.docId, required this.colName});
+  final String userId;
+  const UpdateFarmProfilePage({
+    super.key,
+    required this.docId,
+    required this.colName,
+    required this.userId,
+  });
 
   @override
   State<UpdateFarmProfilePage> createState() => _UpdateProfilePageState();
 }
 
 class _UpdateProfilePageState extends State<UpdateFarmProfilePage> {
-  //database
+  // Database
   final Database db = Database();
 
   final _formKey = GlobalKey<FormState>();
   final TextEditingController nameController = TextEditingController();
   final TextEditingController desController = TextEditingController();
 
-  //Variables to store the data
+  // Variables to store the data
   int? status;
-  String? _status;
   String? name;
   String? description;
   String? imageUrl;
 
-  //Loading
+  final bool _statusError = false;
+
+  // Loading
   bool isLoading = false;
 
   @override
-    void dispose() {
-      nameController.dispose();
-      desController.dispose();
-      super.dispose();
-    }
+  void dispose() {
+    nameController.dispose();
+    desController.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -50,13 +56,15 @@ class _UpdateProfilePageState extends State<UpdateFarmProfilePage> {
 
   Future<void> loadUserData() async {
     DocumentSnapshot profile =
-        await db.retrieve_update(widget.colName, widget.docId);
-    setState(() {
-      nameController.text = profile['Name'];
-      desController.text = profile['Description'];
-      status = profile['Status'];
-      imageUrl = profile['Url'];
-    });
+        await db.retrieve_update(widget.colName, widget.docId, widget.userId);
+    if (mounted) {
+      setState(() {
+        nameController.text = profile['Name'];
+        desController.text = profile['Description'];
+        status = profile['Status'];
+        imageUrl = profile['Url'];
+      });
+    }
   }
 
   Future<void> updateUserData() async {
@@ -69,30 +77,23 @@ class _UpdateProfilePageState extends State<UpdateFarmProfilePage> {
         "Name": nameController.text,
         "Description": desController.text,
         'Url': imageUrl,
-        'Status': getStatusValue(),
+        'Status': status,
       };
-      await db.update(widget.colName, widget.docId, data);
+      await db.update(widget.colName, widget.docId, data, widget.userId);
     }
 
-    setState(() {
-      isLoading = false;
-    });
+    if (mounted) {
+      setState(() {
+        isLoading = false;
+      });
 
-    Navigator.pop(context, 'Profile successfully updated');
-  }
-
-    int getStatusValue() {
-    if (_status == 'Available') {
-      return status = 1;
-    } else if (_status == 'Out of Stock') {
-      return  status = 0;
+      Navigator.pop(context, 'Profile successfully updated');
     }
-    return 1;
   }
 
   @override
   Widget build(BuildContext context) {
-    //Padding
+    // Padding
     double screenWidth = MediaQuery.of(context).size.width;
     double paddingValue = screenWidth * 0.1;
 
@@ -110,56 +111,64 @@ class _UpdateProfilePageState extends State<UpdateFarmProfilePage> {
           ),
         ),
       ),
-      body: Stack(children: [
-        SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: paddingValue),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Center(
-                    child: imageUrl == null
-                        ? Text('No image uploaded')
-                        : Container(
-                            width: 165.2,
-                            height: 200,
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(20)),
-                            child: ClipRRect(
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: paddingValue),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(height: 10),
+                    Center(
+                      child: imageUrl == null
+                          ? Text('No image uploaded')
+                          : Container(
+                              width: 165.2,
+                              height: 200,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: ClipRRect(
                                 borderRadius: BorderRadius.circular(20),
                                 child: Image.network(
                                   imageUrl!,
                                   fit: BoxFit.cover,
-                                )),
-                          ),
-                  ),
-                  SizedBox(height: 20),
-                  Center(
-                    child: OutlinedButton(
-                      onPressed: () async {
-                        final result = await Navigator.push(
-                          context, 
-                          MaterialPageRoute(builder: (context) => ImageUploadPage()),
-                        );
-              
-                        if (result != null) {
+                                ),
+                              ),
+                            ),
+                    ),
+                    SizedBox(height: 20),
+                    Center(
+                      child: OutlinedButton(
+                        onPressed: () async {
+                          final result = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ImageUploadPage(),
+                            ),
+                          );
+
+                          if (result != null && mounted) {
                             setState(() {
                               imageUrl = result;
                             });
                           }
-                      },
-                      style: AppButton.buttonStyleBlack,
-                      child: Text('Edit Profile Image', style: AppText.button)),
+                        },
+                        style: AppButton.buttonStyleBlack,
+                        child: Text('Edit Profile Image', style: AppText.button),
+                      ),
                     ),
                     SizedBox(height: 30),
                     Align(
                       alignment: Alignment.centerLeft,
-                      child: Text('Name', style: AppText.title2,)),
+                      child: Text(
+                        'Name',
+                        style: AppText.title2,
+                      ),
+                    ),
                     TextFormField(
                       controller: nameController,
                       decoration: InputDecoration(
@@ -170,18 +179,22 @@ class _UpdateProfilePageState extends State<UpdateFarmProfilePage> {
                         counterText: '',
                       ),
                       validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Description cannot be empty';
-                          }
-                          return null;
-                        },
+                        if (value == null || value.isEmpty) {
+                          return 'Name cannot be empty';
+                        }
+                        return null;
+                      },
                       maxLength: 30,
                       inputFormatters: [LengthLimitingTextInputFormatter(30)],
                     ),
                     SizedBox(height: 30),
                     Align(
                       alignment: Alignment.centerLeft,
-                      child: Text('Description', style: AppText.title2,)),
+                      child: Text(
+                        'Description',
+                        style: AppText.title2,
+                      ),
+                    ),
                     SizedBox(
                       height: 200,
                       child: TextFormField(
@@ -208,67 +221,78 @@ class _UpdateProfilePageState extends State<UpdateFarmProfilePage> {
                     SizedBox(height: 30),
                     Align(
                       alignment: Alignment.centerLeft,
-                      child: Text('Select Status', style: AppText.title2,)),
-                    Container(
-                    decoration: BoxDecoration(
-                      color: AppC.white,
-                      border: Border.all(color: AppC.black),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    padding: EdgeInsets.fromLTRB(0, 5, 0, 5),
-                    child: Column(
-                      children: [
-                        RadioListTile<String>(
-                          title: Text('Disease', style: AppText.status1),
-                          value: 'Disease',
-                          groupValue: _status,
-                          onChanged: (value) {
-                            setState(() {
-                              _status = value;
-                            });
-                          },
-                        ),
-                        RadioListTile<String>(
-                          title: Text('Healthy', style: AppText.status2),
-                          value: 'Healthy',
-                          groupValue: _status,
-                          onChanged: (value) {
-                            setState(() {
-                              _status = value;
-                            });
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 30),
-                  Align(
-                    alignment: Alignment.center,
-                    child: OutlinedButton(
-                      onPressed: () {
-                        updateUserData();
-                      },
-                      style: AppButton.buttonStyleCreate,
                       child: Text(
-                        'Save',
-                        style: AppText.button,
+                        'Select Status',
+                        style: AppText.title2,
                       ),
                     ),
-                  ),
-                  SizedBox(height: 50),
-                ],
+                    Container(
+                      decoration: BoxDecoration(
+                        color: AppC.white,
+                        border: Border.all(color: AppC.black),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      padding: EdgeInsets.fromLTRB(0, 5, 0, 5),
+                      child: Column(
+                        children: [
+                          CustomRadioListTile<int>(
+                            title: Text('Disease', style: AppText.status1),
+                            value: 0,
+                            groupValue: status,
+                            showError: _statusError,
+                            onChanged: (value) {
+                              if (mounted) {
+                                setState(() {
+                                  status = value;
+                                });
+                              }
+                            },
+                          ),
+                          CustomRadioListTile<int>(
+                            title: Text('Healthy', style: AppText.status2),
+                            value: 1,
+                            groupValue: status,
+                            showError: _statusError,
+                            onChanged: (value) {
+                              if (mounted) {
+                                setState(() {
+                                  status = value;
+                                });
+                              }
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 30),
+                    Align(
+                      alignment: Alignment.center,
+                      child: OutlinedButton(
+                        onPressed: () {
+                          updateUserData();
+                        },
+                        style: AppButton.buttonStyleCreate,
+                        child: Text(
+                          'Save',
+                          style: AppText.button,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 50),
+                  ],
+                ),
               ),
             ),
           ),
-        ),
-        if (isLoading)
-          Container(
-            color: Colors.black.withOpacity(0.5),
-            child: Center(
-              child: CircularProgressIndicator(),
+          if (isLoading)
+            Container(
+              color: Colors.black.withOpacity(0.5),
+              child: Center(
+                child: CircularProgressIndicator(),
+              ),
             ),
-          ),
-      ]),
+        ],
+      ),
     );
   }
 }

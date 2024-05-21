@@ -7,7 +7,8 @@ import 'package:aig/theme.dart';
 import 'package:aig/API/image_upload.dart';
 
 class AddPesticide extends StatefulWidget {
-  const AddPesticide({super.key});
+  final String userId;
+  const AddPesticide({super.key, required this.userId});
 
   @override
   State<AddPesticide> createState() => _PesticidePageState();
@@ -25,7 +26,7 @@ class _PesticidePageState extends State<AddPesticide> {
   //Variables to keep track of empty text fields
   bool _nameError = false;
   bool _descriptionError = false;
-   bool _statusError = false;
+  bool _statusError = false;
 
   //Image
   String? uploadedImageUrl =
@@ -56,7 +57,7 @@ class _PesticidePageState extends State<AddPesticide> {
     });
 
     await db.create_pesticide(
-        name!, description!, uploadedImageUrl!, status!);
+        name!, description!, uploadedImageUrl!, status!, widget.userId);
 
     setState(() {
       isLoading = false;
@@ -232,11 +233,10 @@ class _PesticidePageState extends State<AddPesticide> {
                   Align(
                     alignment: Alignment.topLeft,
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
-                      child: Text(
-                        'Please select a status',
-                        style: AppText.warning
-                      ),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16.0, vertical: 8),
+                      child: Text('Please select a status',
+                          style: AppText.warning),
                     ),
                   ),
                 SizedBox(height: 30),

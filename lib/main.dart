@@ -1,3 +1,5 @@
+import 'package:aig/pages/auth.dart';
+import 'package:aig/pages/treatment.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -25,13 +27,18 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.green,
       ),
-      home: HomePage(),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => AuthScreen(),
+        //'/loading': (context) => LoadingPage(userId: userId),
+      },
     );
   }
 }
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final String userId;
+  const HomePage({super.key, required this.userId});
 
   @override
   // ignore: library_private_types_in_public_api
@@ -39,13 +46,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int _selectedIndex = 1;
-
-  static final List<Widget> _widgetOptions = <Widget>[
-    FertilizerPage(),
-    FarmPage(),
-    PesticidePage(),
-  ];
+  int _selectedIndex = 0;
 
   void _onItemTapped(int index) {
     setState(() {
@@ -55,9 +56,18 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final String userId = widget.userId;
+
+    final List<Widget> widgetOptions = <Widget>[
+      FarmPage(userId: userId),
+      FertilizerPage(userId: userId),
+      PesticidePage(userId: userId),
+      TreatmentPage(userId: userId),
+    ];
+
     return Scaffold(
       body: Center(
-        child: _widgetOptions.elementAt(_selectedIndex),
+        child: widgetOptions.elementAt(_selectedIndex),
       ),
       bottomNavigationBar: ClipRRect(
         borderRadius: BorderRadius.only(
@@ -67,16 +77,20 @@ class _HomePageState extends State<HomePage> {
         child: BottomNavigationBar(
           items: const <BottomNavigationBarItem>[
             BottomNavigationBarItem(
-              icon: Icon(Icons.grass),
-              label: 'Fertilizer',
-            ),
-            BottomNavigationBarItem(
               icon: Icon(Icons.home),
               label: 'Farm',
             ),
             BottomNavigationBarItem(
+              icon: Icon(Icons.grass),
+              label: 'Fertilizer',
+            ),
+            BottomNavigationBarItem(
               icon: Icon(Icons.bug_report),
               label: 'Pesticide',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.menu_book),
+              label: 'Treatment',
             ),
           ],
           currentIndex: _selectedIndex,

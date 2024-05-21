@@ -1,18 +1,26 @@
-Task - Pesticide & Fertilizer
-1.. Search function
+Optional Function
+1. Search profile function
 
+Task - Edit password and user name page
 Task - Farm
-1. Create - Do this first
-    - Name, description, address, status, pesticide, fertilizer, recognition models
-2. Display
-    - 
-3. Delete
-4. Update
+1. Display (button - weather, disease recognition, history, navigation), fertilizer and pesticide amounts
+2. Update
 
 Task - Weather page
-Task - Camera page
+Task - Navigation page
 Task - Treatment page
-Task - Model(Where to store and how to use) - Do this first
+Task - Upload leaf image page
+Task - Treatment recommendation page
+Task - Treatment history page
+
+
+New features
+1. AI execute command within the application 
+2. AI can accpet voice command within the application
+3. Task can be executed (create farm, pesticide and fertilizer profile, open weather forecast, treatment history and navigation)
+4. Advanced task can be executed (task today weather and latest farm health information to generate action recommendations)
+5. Store the recommendation in a database named AI treatment history
+
 
 API
 1. Firebase
@@ -68,4 +76,5 @@ API
 
 Problems I faced:
 1. Android, android gradle, kotlin gradle, flutter and API versions are not supported/compatible
+2. Memory leak
 
