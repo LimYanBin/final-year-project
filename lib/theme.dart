@@ -11,12 +11,14 @@ class AppC {
   static const Color white = Color(0xFFFFFFFF);
   static const Color lGrey = Color(0xFFD9D9D9);
   static const Color dGrey = Color(0xFF706F6F);
+  static const Color lPurple = Color(0xFFF3E5F5);
+  static const Color purple = Color(0xFFE1BEE7);
+  static const Color dPurple = Color(0xFFAB47B3);
   static const Color gold = Color.fromARGB(255, 238, 191, 62);
   static const Color warning = Color.fromARGB(255, 180, 68, 24);
 }
 
 class AppText {
-
   static const TextStyle title = TextStyle(
     fontSize: 24.0,
     fontWeight: FontWeight.w500,
@@ -151,9 +153,17 @@ class AppBoxDecoration {
     border: Border.all(color: AppC.black),
   );
 
+  static final BoxDecoration box2 = BoxDecoration(
+    color: AppC.bgdWhite,
+    borderRadius: BorderRadius.circular(8.0),
+    border: Border.all(color: AppC.black),
+  );
+
   static final BoxConstraints boxConstraints = BoxConstraints(
     minHeight: 50,
     minWidth: 300,
+    maxHeight: 200,
+    maxWidth: 300,
   );
 
   static final BoxDecoration mapBox = BoxDecoration(
@@ -170,7 +180,7 @@ class CustomRadioListTile<T> extends StatelessWidget {
   final bool showError;
 
   CustomRadioListTile({
-    super.key, 
+    super.key,
     required this.value,
     required this.groupValue,
     required this.onChanged,
@@ -191,11 +201,11 @@ class CustomRadioListTile<T> extends StatelessWidget {
           decoration: BoxDecoration(
             shape: BoxShape.rectangle,
             border: Border.all(
-              color: value == groupValue 
-              ? AppC.lBlue 
-              : showError
-                ? AppC.warning
-                : AppC.dGrey,
+              color: value == groupValue
+                  ? AppC.lBlue
+                  : showError
+                      ? AppC.warning
+                      : AppC.dGrey,
               width: 2.0,
             ),
             color: value == groupValue ? AppC.lBlue : Colors.transparent,

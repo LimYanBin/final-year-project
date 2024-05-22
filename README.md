@@ -1,11 +1,8 @@
 Optional Function
 1. Search profile function
+2. Edit password and user name page
 
-Task - Edit password and user name page
-Task - Farm
-1. Display (button - weather, disease recognition, history, navigation), fertilizer and pesticide amounts
-2. Update
-
+Task: Farm Profile Button Design
 Task - Weather page
 Task - Navigation page
 Task - Treatment page
@@ -28,50 +25,6 @@ API
 3. Phone Camera
 4. Weather
 5. Google Maps
-
-
--------------------------------------------------------------
-|                       [Farm Profile]                      |
-|-----------------------------------------------------------|
-|  [Farm Name]                                              |
-|-----------------------------------------------------------|
-|  Description:                                             |
-|  -------------------------------------------------------  |
-|  | Farm Description                                     | |
-|  -------------------------------------------------------  |
-|-----------------------------------------------------------|
-|  Address:                                                 |
-|  -------------------------------------------------------  |
-|  | Farm Address                                         | |
-|  -------------------------------------------------------  |
-|-----------------------------------------------------------|
-|  Crop Health Status:                                      |
-|  [Healthy] [Icon]                                         |
-|-----------------------------------------------------------|
-|  Disease Recognition Model:                               |
-|  -------------------------------------------------------  |
-|  | Model Name                                          |  |
-|  -------------------------------------------------------  |
-|  [Analyze Plant Disease] [Camera Icon]                    |
-|-----------------------------------------------------------|
-|  Fertilizers:                                             |
-|  -------------------------------------------------------  |
-|  | Fertilizer 1  [-] [Amount] [+]                       | |
-|  | Fertilizer 2  [-] [Amount] [+]                       | |
-|  -------------------------------------------------------  |
-|-----------------------------------------------------------|
-|  Pesticides:                                              |
-|  -------------------------------------------------------  |
-|  | Pesticide 1                                          | |
-|  | Pesticide 2                                          | |
-|  -------------------------------------------------------  |
-|-----------------------------------------------------------|
-|  [Update Profile] [Primary Button]                        |
-|  [Delete Profile] [Secondary Button]                      |
-|  [Navigate to Farm] [Nav Icon]                            |
-|  [Weather Forecast] [Weather Icon]                        |
-|  [Treatment History] [History Icon]                       |
--------------------------------------------------------------
 
 
 Problems I faced:

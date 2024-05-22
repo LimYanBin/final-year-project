@@ -1,9 +1,10 @@
 import 'package:aig/pages/auth.dart';
+import 'package:aig/pages/farm.dart';
+import 'package:aig/pages/loading.dart';
 import 'package:aig/pages/treatment.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
-import 'pages/farm.dart';
 import 'pages/fertilizer.dart';
 import 'pages/pesticide.dart';
 import 'theme.dart';
@@ -27,10 +28,10 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.green,
       ),
-      initialRoute: '/',
+      initialRoute: '/loading',
       routes: {
         '/': (context) => AuthScreen(),
-        //'/loading': (context) => LoadingPage(userId: userId),
+        '/loading': (context) => LoadingPage(userId: '4KEoqXQquLzvrG04kyLx'),
       },
     );
   }

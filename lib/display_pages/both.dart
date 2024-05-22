@@ -141,7 +141,8 @@ class _ProfileDetailPageState extends State<ProfileDetailPage> {
                                   _message = result;
                                 });
                                 refreshData();
-                                _messageClearTimer = Timer(Duration(seconds: 5), () {
+                                _messageClearTimer =
+                                    Timer(Duration(seconds: 5), () {
                                   if (mounted) {
                                     setState(() {
                                       _message = null;
@@ -229,9 +230,11 @@ class _ProfileDetailPageState extends State<ProfileDetailPage> {
                               horizontal: 10, vertical: 10),
                           constraints: AppBoxDecoration.boxConstraints,
                           decoration: AppBoxDecoration.box,
-                          child: Text(
-                            profile['Description'] ?? 'No Description',
-                            style: AppText.text,
+                          child: SingleChildScrollView(
+                            child: Text(
+                              profile['Description'] ?? 'No Description',
+                              style: AppText.text,
+                            ),
                           ),
                         ),
                       ],
