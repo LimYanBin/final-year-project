@@ -14,6 +14,9 @@ class AppC {
   static const Color lPurple = Color(0xFFF3E5F5);
   static const Color purple = Color(0xFFE1BEE7);
   static const Color dPurple = Color(0xFFAB47B3);
+  static const Color lBlurGrey = Color(0xFFCFD8DC);
+  static const Color blurGrey = Color(0xFF90A4AE);
+  static const Color dBlurGrey = Color(0xFF607D8B);
   static const Color gold = Color.fromARGB(255, 238, 191, 62);
   static const Color warning = Color.fromARGB(255, 180, 68, 24);
 }
@@ -50,6 +53,13 @@ class AppText {
   static const TextStyle text3 = TextStyle(
     fontFamily: 'Roboto',
     color: AppC.green1,
+    fontWeight: FontWeight.normal,
+    fontSize: 15.0,
+  );
+
+  static const TextStyle treatment = TextStyle(
+    fontFamily: 'Roboto',
+    color: AppC.black,
     fontWeight: FontWeight.normal,
     fontSize: 15.0,
   );
@@ -138,7 +148,17 @@ class AppButton {
       ),
       side: BorderSide(color: AppC.black, width: 2),
       fixedSize: Size(250, 40));
+
+      static final ButtonStyle buttonStyleDisease = OutlinedButton.styleFrom(
+      backgroundColor: AppC.lPurple,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      side: BorderSide(color: AppC.dPurple, width: 2),
+      fixedSize: Size(250, 45));
 }
+
+
 
 class AppTextField {
   static const TextStyle textField = TextStyle(
@@ -159,11 +179,23 @@ class AppBoxDecoration {
     border: Border.all(color: AppC.black),
   );
 
+  static final BoxDecoration box3 = BoxDecoration(
+    color: AppC.lGrey,
+    borderRadius: BorderRadius.circular(8.0),
+    border: Border.all(color: AppC.black),
+  );
+
   static final BoxConstraints boxConstraints = BoxConstraints(
     minHeight: 50,
     minWidth: 300,
     maxHeight: 200,
     maxWidth: 300,
+  );
+
+  static final BoxConstraints boxConstraints2 = BoxConstraints(
+    minHeight: 50,
+    minWidth: 350,
+    maxHeight: 200,
   );
 
   static final BoxDecoration mapBox = BoxDecoration(

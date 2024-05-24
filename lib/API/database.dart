@@ -1,8 +1,12 @@
-// ignore_for_file: non_constant_identifier_names, unnecessary_null_comparison
+// ignore_for_file: non_constant_identifier_names
+
+import 'package:aig/Treatment/content.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Database {
   final ref = FirebaseFirestore.instance.collection('users');
+  final tre = FirebaseFirestore.instance.collection('treatment');
+  TreatmentRecommendation tr = TreatmentRecommendation();
 
   Future<void> create_fertilizer(String name, String description, String url,
       int status, String uId) async {
@@ -74,6 +78,11 @@ class Database {
     return col.snapshots();
   }
 
+  Stream<QuerySnapshot> retrieve_treatment(String uId) {
+    final col = ref.doc(uId).collection('treatment');
+    return col.snapshots();
+  }
+
   //retrieve operations for Update operations
   Future<DocumentSnapshot> retrieve_update(
       String colName, String docId, String uId) async {
@@ -93,6 +102,19 @@ class Database {
     await col.update(data);
   }
 
+  Future<DocumentSnapshot<Map<String, dynamic>>> retrieve_disease(String uId, String docId) {
+    return ref.doc(uId).collection('treatment').doc(docId).get();
+  }
+
+  //update operation for disease
+  Future<void> updateDisease(Map<String, dynamic> data, String uId, String docId) async {
+        await ref.doc(uId).collection('treatment').doc(docId).update(data);
+  }
+
+  Future<DocumentSnapshot<Map<String, dynamic>>> reset_disease(String docId) async{
+    return tre.doc(docId).get();
+  }
+
   //authentication
   Future<bool> registerUser(String username, String password) async {
     var result = await ref.where('username', isEqualTo: username).get();
@@ -106,8 +128,35 @@ class Database {
       "password": password,
     };
 
-    await ref.add(data);
+    var docRef = await ref.add(data);
+
+    await storeTreatment(docRef.id);
+
     return true;
+  }
+
+  Future<void> storeTreatment(String userId) async {
+    final potatoRecommendations = {
+      'Early Blight': tr.potato(1),
+      'Late Blight': tr.potato(2),
+    };
+
+    final strawberryRecommendations = {
+      'Leaf Scorch': tr.strawberry(1),
+    };
+
+    final tomatoRecommendations = {
+      'Bacterial Spot': tr.tomato(1),
+      'Early Blight': tr.tomato(2),
+      'Late Blight': tr.tomato(3),
+      'Yellow Leaf Curl Virus': tr.tomato(4),
+    };
+
+    final treatmentRef = ref.doc(userId).collection('treatment');
+
+    await treatmentRef.doc('Potato').set(potatoRecommendations);
+    await treatmentRef.doc('Strawberry').set(strawberryRecommendations);
+    await treatmentRef.doc('Tomato').set(tomatoRecommendations);
   }
 
   // Login user
@@ -161,7 +210,8 @@ class Database {
   }
 
   // Update fertilizer and pesticide amount for a specific farm
-  Future<void> update_amount(String farmId, String id, String col, int amount, String userId) async {
+  Future<void> update_amount(
+      String farmId, String id, String col, int amount, String userId) async {
     final farmDoc = ref.doc(userId).collection('farm').doc(farmId);
     await farmDoc.update({
       '$col.$id.amount': amount,

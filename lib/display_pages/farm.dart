@@ -574,72 +574,72 @@ class _FarmProfileDetailPageState extends State<FarmProfileDetailPage> {
                               decoration: AppBoxDecoration.box,
                               padding: EdgeInsets.all(8.0),
                               child: pesticides.isEmpty
-                                  ? SingleChildScrollView(
-                                      child: Center(
-                                          child: Text('No Available Pesticide',
-                                              style: AppText.text)),
-                                    )
-                                  : Column(
-                                      children: pesticides.keys.map((id) {
-                                        final pesticide = pesticides[id];
-                                        return Column(
-                                          children: [
-                                            SizedBox(
-                                              height: 10,
-                                            ),
-                                            Container(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      vertical: 5.0,
-                                                      horizontal: 10),
-                                              decoration: AppBoxDecoration.box2,
-                                              child: Row(
-                                                children: [
-                                                  Text(
-                                                      pesticide['Name'] ??
-                                                          'Unknown',
-                                                      style: AppText.text),
-                                                  Spacer(),
-                                                  IconButton(
-                                                    icon: Icon(Icons.remove),
-                                                    onPressed: () {
-                                                      setState(() {
-                                                        if (pesticide[
-                                                                'amount'] >
-                                                            0) {
-                                                          pesticide['amount']--;
+                                  ? Center(
+                                      child: Text('No Available Pesticide',
+                                          style: AppText.text))
+                                  : SingleChildScrollView(
+                                    child: Column(
+                                        children: pesticides.keys.map((id) {
+                                          final pesticide = pesticides[id];
+                                          return Column(
+                                            children: [
+                                              SizedBox(
+                                                height: 10,
+                                              ),
+                                              Container(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        vertical: 5.0,
+                                                        horizontal: 10),
+                                                decoration: AppBoxDecoration.box2,
+                                                child: Row(
+                                                  children: [
+                                                    Text(
+                                                        pesticide['Name'] ??
+                                                            'Unknown',
+                                                        style: AppText.text),
+                                                    Spacer(),
+                                                    IconButton(
+                                                      icon: Icon(Icons.remove),
+                                                      onPressed: () {
+                                                        setState(() {
+                                                          if (pesticide[
+                                                                  'amount'] >
+                                                              0) {
+                                                            pesticide['amount']--;
+                                                            updateAmount(
+                                                                id,
+                                                                pesticide[
+                                                                    'amount'],
+                                                                'Pesticide');
+                                                          }
+                                                        });
+                                                      },
+                                                    ),
+                                                    Text(
+                                                        pesticide['amount']
+                                                            .toString(),
+                                                        style: AppText.text),
+                                                    IconButton(
+                                                      icon: Icon(Icons.add),
+                                                      onPressed: () {
+                                                        setState(() {
+                                                          pesticide['amount']++;
                                                           updateAmount(
                                                               id,
-                                                              pesticide[
-                                                                  'amount'],
+                                                              pesticide['amount'],
                                                               'Pesticide');
-                                                        }
-                                                      });
-                                                    },
-                                                  ),
-                                                  Text(
-                                                      pesticide['amount']
-                                                          .toString(),
-                                                      style: AppText.text),
-                                                  IconButton(
-                                                    icon: Icon(Icons.add),
-                                                    onPressed: () {
-                                                      setState(() {
-                                                        pesticide['amount']++;
-                                                        updateAmount(
-                                                            id,
-                                                            pesticide['amount'],
-                                                            'Pesticide');
-                                                      });
-                                                    },
-                                                  ),
-                                                ],
+                                                        });
+                                                      },
+                                                    ),
+                                                  ],
+                                                ),
                                               ),
-                                            ),
-                                          ],
-                                        );
-                                      }).toList(),
-                                    ),
+                                            ],
+                                          );
+                                        }).toList(),
+                                      ),
+                                  ),
                             ),
                           ],
                         ),

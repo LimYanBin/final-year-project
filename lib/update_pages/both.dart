@@ -30,8 +30,6 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
 
   // Variables to store the data
   int? status;
-  String? name;
-  String? description;
   String? imageUrl;
 
   final bool _statusError = false;
@@ -262,7 +260,6 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
                         ],
                       ),
                     ),
-
                     SizedBox(height: 30),
                     Align(
                       alignment: Alignment.center,

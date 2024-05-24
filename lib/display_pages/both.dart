@@ -104,8 +104,7 @@ class _ProfileDetailPageState extends State<ProfileDetailPage> {
               ),
             ],
             Padding(
-              padding: EdgeInsets.symmetric(
-                  horizontal: paddingWidth, vertical: paddingHeight),
+              padding: EdgeInsets.symmetric(horizontal: paddingWidth, vertical: paddingHeight),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

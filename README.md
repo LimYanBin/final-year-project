@@ -5,7 +5,6 @@ Optional Function
 Task: Farm Profile Button Design
 Task - Weather page
 Task - Navigation page
-Task - Treatment page
 Task - Upload leaf image page
 Task - Treatment recommendation page
 Task - Treatment history page

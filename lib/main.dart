@@ -1,7 +1,6 @@
 import 'package:aig/pages/auth.dart';
 import 'package:aig/pages/farm.dart';
-import 'package:aig/pages/loading.dart';
-import 'package:aig/pages/treatment.dart';
+import 'package:aig/pages/disease.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -28,10 +27,10 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.green,
       ),
-      initialRoute: '/loading',
+      initialRoute: '/',
       routes: {
         '/': (context) => AuthScreen(),
-        '/loading': (context) => LoadingPage(userId: '4KEoqXQquLzvrG04kyLx'),
+        //'/loading': (context) => LoadingPage(userId: ''),
       },
     );
   }
@@ -91,7 +90,7 @@ class _HomePageState extends State<HomePage> {
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.menu_book),
-              label: 'Treatment',
+              label: 'Disease',
             ),
           ],
           currentIndex: _selectedIndex,
