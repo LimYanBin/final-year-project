@@ -1,6 +1,6 @@
 import 'package:aig/pages/auth.dart';
-import 'package:aig/pages/farm.dart';
 import 'package:aig/pages/disease.dart';
+import 'package:aig/pages/farm.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -31,6 +31,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (context) => AuthScreen(),
         //'/loading': (context) => LoadingPage(userId: ''),
+        //'/treatment':(context) => TreatmentPage(userId: 'nCNcPKmcfu2d0fZcawbO', diseaseName: 'Early Blight', plantName: 'Potato')
       },
     );
   }
@@ -62,7 +63,7 @@ class _HomePageState extends State<HomePage> {
       FarmPage(userId: userId),
       FertilizerPage(userId: userId),
       PesticidePage(userId: userId),
-      TreatmentPage(userId: userId),
+      DiseaseDetails(userId: userId),
     ];
 
     return Scaffold(

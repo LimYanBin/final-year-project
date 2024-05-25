@@ -5,10 +5,7 @@ Optional Function
 Task: Farm Profile Button Design
 Task - Weather page
 Task - Navigation page
-Task - Upload leaf image page
-Task - Treatment recommendation page
-Task - Treatment history page
-
+ 
 
 New features
 1. AI execute command within the application 
@@ -29,4 +26,5 @@ API
 Problems I faced:
 1. Android, android gradle, kotlin gradle, flutter and API versions are not supported/compatible
 2. Memory leak
+3. Database relation design (Complex relation)
 

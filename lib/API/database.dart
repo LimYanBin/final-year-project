@@ -1,4 +1,4 @@
-// ignore_for_file: non_constant_identifier_names
+// ignore_for_file: non_constant_identifier_names, avoid_print
 
 import 'package:aig/Treatment/content.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -217,4 +217,32 @@ class Database {
       '$col.$id.amount': amount,
     });
   }
+
+  Future<void> storeHistory(String uId, String plantName, String diseaseName, String farmId, String date, Map<String, dynamic> data, String history_type) async {
+    try {
+      await ref.doc(uId).collection('farm').doc(farmId).collection(history_type).add({
+        'Plant': plantName,
+        'Disease Name': diseaseName,
+        'Data': data,
+        'Date': date,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      print("Failed to store history: $e");
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> retrieveHistory(String uId, String farmId, String history_type) async {
+  try {
+    QuerySnapshot querySnapshot = await ref.doc(uId).collection('farm').doc(farmId)
+        .collection(history_type)
+        .orderBy('timestamp', descending: true)
+        .get();
+
+    return querySnapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
+  } catch (e) {
+    print("Failed to retrieve history: $e");
+    return [];
+  }
+}
 }

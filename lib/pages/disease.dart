@@ -5,15 +5,15 @@ import 'package:aig/theme.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-class TreatmentPage extends StatefulWidget {
+class DiseaseDetails extends StatefulWidget {
   final String userId;
-  const TreatmentPage({super.key, required this.userId});
+  const DiseaseDetails({super.key, required this.userId});
 
   @override
-  State<TreatmentPage> createState() => _TreatmentPageState();
+  State<DiseaseDetails> createState() => _DiseaseDetailsState();
 }
 
-class _TreatmentPageState extends State<TreatmentPage> {
+class _DiseaseDetailsState extends State<DiseaseDetails> {
   // Database
   Database db = Database();
 
@@ -199,6 +199,7 @@ class _TreatmentPageState extends State<TreatmentPage> {
                 Container(
                   color: AppC.lBlurGrey,
                   constraints: AppBoxDecoration.boxConstraints2,
+                  padding: EdgeInsets.symmetric(vertical: 10),
                   child: SingleChildScrollView(
                       child: _buildDiseaseList('Potato', userId)),
                 ),
@@ -232,6 +233,7 @@ class _TreatmentPageState extends State<TreatmentPage> {
                 Container(
                   color: AppC.lBlurGrey,
                   constraints: AppBoxDecoration.boxConstraints2,
+                  padding: EdgeInsets.symmetric(vertical: 10),
                   child: SingleChildScrollView(
                       child: _buildDiseaseList('Tomato', userId)),
                 ),
@@ -265,6 +267,7 @@ class _TreatmentPageState extends State<TreatmentPage> {
                 Container(
                   color: AppC.lBlurGrey,
                   constraints: AppBoxDecoration.boxConstraints2,
+                  padding: EdgeInsets.symmetric(vertical: 10),
                   child: SingleChildScrollView(
                       child: _buildDiseaseList('Strawberry', userId)),
                 ),

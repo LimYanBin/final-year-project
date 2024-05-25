@@ -149,16 +149,33 @@ class AppButton {
       side: BorderSide(color: AppC.black, width: 2),
       fixedSize: Size(250, 40));
 
-      static final ButtonStyle buttonStyleDisease = OutlinedButton.styleFrom(
+  static final ButtonStyle buttonStyleDisease = OutlinedButton.styleFrom(
       backgroundColor: AppC.lPurple,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
       ),
       side: BorderSide(color: AppC.dPurple, width: 2),
       fixedSize: Size(250, 45));
+
+  static final ButtonStyle buttonStyleFarm = OutlinedButton.styleFrom(
+      backgroundColor: AppC.lBlurGrey,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      side: BorderSide(color: AppC.dBlurGrey, width: 2),
+      fixedSize: Size(250, 45));
+
+  static final ButtonStyle buttonStyleHistory = OutlinedButton.styleFrom(
+      backgroundColor: AppC.lBlurGrey,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      side: BorderSide(color: AppC.dBlurGrey, width: 2),
+      fixedSize: Size(250, 60));
+
+  static final ButtonStyle ele =
+      ElevatedButton.styleFrom(fixedSize: Size(250, 45));
 }
-
-
 
 class AppTextField {
   static const TextStyle textField = TextStyle(
@@ -196,6 +213,11 @@ class AppBoxDecoration {
     minHeight: 50,
     minWidth: 350,
     maxHeight: 200,
+  );
+
+  static final BoxConstraints boxConstraints3 = BoxConstraints(
+    minHeight: 50,
+    minWidth: 350,
   );
 
   static final BoxDecoration mapBox = BoxDecoration(

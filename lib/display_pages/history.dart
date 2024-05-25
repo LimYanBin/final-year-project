@@ -1,75 +1,18 @@
-// ignore_for_file: avoid_print
-
-import 'package:aig/API/database.dart';
 import 'package:aig/theme.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
-class TreatmentPage extends StatefulWidget {
-  final String userId;
-  final String diseaseName;
-  final String plantName;
-  final String farmId;
-  const TreatmentPage(
-      {super.key,
-      required this.userId,
-      required this.diseaseName,
-      required this.plantName,
-      required this.farmId});
+class DiseaseHistory extends StatefulWidget {
+  final Map<String, dynamic> history;
+  const DiseaseHistory({super.key, required this.history});
 
   @override
-  State<TreatmentPage> createState() => _TreatmentPageState();
+  State<DiseaseHistory> createState() => _DiseaseHistoryState();
 }
 
-class _TreatmentPageState extends State<TreatmentPage> {
-  // Database
-  Database db = Database();
-
-  // Variables
-  late String plantName = widget.plantName;
-  late String diseaseName = widget.diseaseName;
-  late String userId = widget.userId;
-  late String farmId = widget.farmId;
-  String date = DateFormat('dd-MM-yyyy').format(DateTime.now());
-  late Map<String, dynamic> _data;
-
-  String? description;
-  String? reason;
-  String? treatment;
-
-  // Loading
-  bool isLoading = false;
-
-  @override
-  void initState() {
-    super.initState();
-    loadDiseaseData();
-  }
-
-  Future<void> loadDiseaseData() async {
-    setState(() {
-      isLoading = true;
-    });
-
-    final snapshot = await db.retrieve_disease(userId, plantName);
-    final data = snapshot.data() as Map<String, dynamic>;
-    final diseaseData = data[diseaseName] as Map<String, dynamic>;
-
-    if (mounted) {
-      setState(() {
-        description = diseaseData['Description'];
-        reason = diseaseData['Reason'];
-        treatment = diseaseData['Treatment'];
-        _data = diseaseData;
-      });
-    }
-    
-    db.storeHistory(userId, plantName,diseaseName, farmId, date, _data, 'Disease History');
-
-    setState(() {
-      isLoading = false;
-    });
-  }
+class _DiseaseHistoryState extends State<DiseaseHistory> {
+  //variables
+  late Map<String, dynamic> history = widget.history;
+  late Map<String, dynamic> data = widget.history['Data'];
 
   @override
   Widget build(BuildContext context) {
@@ -90,13 +33,12 @@ class _TreatmentPageState extends State<TreatmentPage> {
           child: AppBar(
             backgroundColor: AppC.dBlue,
             title: Text(
-              'Recognition Report',
+              'Report History',
               style: AppText.title,
             ),
             leading: IconButton(
               icon: Icon(Icons.arrow_back),
               onPressed: () {
-                Navigator.pop(context);
                 Navigator.pop(context);
               },
             ),
@@ -125,7 +67,7 @@ class _TreatmentPageState extends State<TreatmentPage> {
                   padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                   decoration: AppBoxDecoration.box3,
                   child: Text(
-                    date,
+                    history['Date'],
                     style: AppText.text,
                   ),
                 ),
@@ -144,7 +86,7 @@ class _TreatmentPageState extends State<TreatmentPage> {
                   padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                   decoration: AppBoxDecoration.box3,
                   child: Text(
-                    plantName,
+                    history['Plant'],
                     style: AppText.text,
                   ),
                 ),
@@ -163,7 +105,7 @@ class _TreatmentPageState extends State<TreatmentPage> {
                   padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                   decoration: AppBoxDecoration.box3,
                   child: Text(
-                    diseaseName,
+                    history['Disease Name'],
                     style: AppText.text,
                   ),
                 ),
@@ -182,7 +124,7 @@ class _TreatmentPageState extends State<TreatmentPage> {
                   padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                   decoration: AppBoxDecoration.box3,
                   child: Text(
-                    description ?? 'No description available',
+                    data['Description'],
                     style: AppText.text,
                   ),
                 ),
@@ -201,7 +143,7 @@ class _TreatmentPageState extends State<TreatmentPage> {
                   padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                   decoration: AppBoxDecoration.box3,
                   child: Text(
-                    reason ?? 'No reason available',
+                    data['Reason'],
                     style: AppText.text,
                   ),
                 ),
@@ -220,7 +162,7 @@ class _TreatmentPageState extends State<TreatmentPage> {
                   padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                   decoration: AppBoxDecoration.box3,
                   child: Text(
-                    treatment ?? 'No treatment available',
+                    data['Treatment'],
                     style: AppText.text,
                   ),
                 ),
@@ -228,13 +170,6 @@ class _TreatmentPageState extends State<TreatmentPage> {
             ),
           ),
         ),
-        if (isLoading)
-          Container(
-            color: Colors.black.withOpacity(0.5),
-            child: Center(
-              child: CircularProgressIndicator(),
-            ),
-          ),
       ]),
     );
   }

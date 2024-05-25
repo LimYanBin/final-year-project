@@ -4,7 +4,6 @@ import 'dart:async';
 
 import 'package:aig/API/database.dart';
 import 'package:aig/theme.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class DiseaseDetailPage extends StatefulWidget {
@@ -65,7 +64,7 @@ class _DiseaseDetailPageState extends State<DiseaseDetailPage> {
   Future<void> loadUserData() async {
     final snapshot = await db.retrieve_disease(userId, name);
     final data = snapshot.data() as Map<String, dynamic>;
-    final diseaseData = data[widget.diseaseName] as Map<String, dynamic>;
+    final diseaseData = data[diseaseName] as Map<String, dynamic>;
 
     if (mounted) {
       setState(() {
@@ -274,7 +273,7 @@ class _DiseaseDetailPageState extends State<DiseaseDetailPage> {
                       ),
                       SizedBox(height: 10),
                     ],
-                    Text('Name', style: AppText.title2),
+                    Text('Plant Name', style: AppText.title2),
                     SizedBox(height: 10),
                     Container(
                       height: 50,
@@ -303,10 +302,8 @@ class _DiseaseDetailPageState extends State<DiseaseDetailPage> {
                         style: AppText.text,
                       ),
                     ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    Text('Description', style: AppText.title2),
+                    SizedBox(height: 20,),
+                    Text('Disease Description', style: AppText.title2),
                     SizedBox(height: 10),
                     Container(
                       constraints: AppBoxDecoration.boxConstraints,
@@ -333,7 +330,7 @@ class _DiseaseDetailPageState extends State<DiseaseDetailPage> {
                     SizedBox(
                       height: 20,
                     ),
-                    Text('Reason', style: AppText.title2),
+                    Text('Cause of Infection', style: AppText.title2),
                     SizedBox(height: 10),
                     Container(
                       constraints: AppBoxDecoration.boxConstraints,

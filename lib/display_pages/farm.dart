@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously, avoid_print
 
 import 'package:aig/API/disease_recognition.dart';
+import 'package:aig/display_pages/history.dart';
 import 'package:aig/update_pages/farm.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -24,6 +25,7 @@ class FarmProfileDetailPage extends StatefulWidget {
 }
 
 class _FarmProfileDetailPageState extends State<FarmProfileDetailPage> {
+  Database db = Database();
   // Success message from update pages
   String? _message;
 
@@ -32,6 +34,7 @@ class _FarmProfileDetailPageState extends State<FarmProfileDetailPage> {
   Map<String, dynamic> fertilizers = {};
   Map<String, dynamic> pesticides = {};
   String? _model;
+  String? plant;
 
   // Loading
   bool isLoading = false;
@@ -39,6 +42,8 @@ class _FarmProfileDetailPageState extends State<FarmProfileDetailPage> {
   // Dropdown Memu
   bool _isManage = false;
   bool _isDDS = false;
+  bool _isDH = false;
+  bool _isAH = false;
 
   void _toggleManage() {
     setState(() {
@@ -52,6 +57,18 @@ class _FarmProfileDetailPageState extends State<FarmProfileDetailPage> {
     });
   }
 
+  void _toggleDH() {
+    setState(() {
+      _isDH = !_isDH;
+    });
+  }
+
+  void _toggleAH() {
+    setState(() {
+      _isAH = !_isAH;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -61,8 +78,6 @@ class _FarmProfileDetailPageState extends State<FarmProfileDetailPage> {
   }
 
   Future<void> fetchFerPest() async {
-    final Database db = Database();
-
     setState(() {
       isLoading = true;
     });
@@ -84,12 +99,56 @@ class _FarmProfileDetailPageState extends State<FarmProfileDetailPage> {
     setState(() {
       if (model == 1) {
         _model = 'Potato Model';
+        plant = 'Potato';
       } else if (model == 2) {
         _model = 'Strawberry Model';
+        plant = 'Strawberry';
       } else if (model == 3) {
         _model = 'Tomato Model';
+        plant = 'Tomato';
       }
     });
+  }
+
+  Widget buildDiseaseHistory(String historyType) {
+    return FutureBuilder<List<Map<String, dynamic>>>(
+        future: db.retrieveHistory(widget.userId, profile['id'], historyType),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Center(
+                child: Text(
+              'No history available',
+              style: AppText.text2,
+            ));
+          }
+          final historyList = snapshot.data!;
+          return ListView.builder(
+            itemCount: historyList.length,
+            itemBuilder: (context, index) {
+              final history = historyList[index];
+              return ListTile(
+                title: Text(
+                  '${history['Date']} - ${history['Disease Name']}',
+                  style: AppText.text,
+                ),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => DiseaseHistory(history: history),
+                    ),
+                  );
+                },
+              );
+            },
+          );
+        });
   }
 
   @override
@@ -177,9 +236,8 @@ class _FarmProfileDetailPageState extends State<FarmProfileDetailPage> {
                         onTap: _toggleManage,
                         child: ClipRRect(
                           borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(10),
-                            topRight: Radius.circular(10)
-                          ),
+                              topLeft: Radius.circular(10),
+                              topRight: Radius.circular(10)),
                           child: Container(
                             padding: EdgeInsets.all(16.0),
                             color: AppC.purple,
@@ -203,20 +261,63 @@ class _FarmProfileDetailPageState extends State<FarmProfileDetailPage> {
                       ),
                       if (_isManage)
                         Container(
+                          width: 350,
                           color: AppC.lPurple,
+                          padding: EdgeInsets.symmetric(vertical: 10),
                           child: Column(
                             children: [
-                              ListTile(
-                                title: Text('Update'),
-                                onTap: () {
-                                  // Handle update action
-                                },
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 10.0),
+                                child: OutlinedButton(
+                                  style: AppButton.buttonStyleFarm,
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            UpdateFarmProfilePage(
+                                          colName: widget.colName,
+                                          docId: profile['id'],
+                                          userId: widget.userId,
+                                        ),
+                                      ),
+                                    ).then((result) {
+                                      if (result != null) {
+                                        setState(() {
+                                          _message = result;
+                                        });
+                                        refreshData();
+                                        Future.delayed(Duration(seconds: 5),
+                                            () {
+                                          if (mounted) {
+                                            setState(() {
+                                              _message = null;
+                                            });
+                                          }
+                                        });
+                                      }
+                                    });
+                                  },
+                                  child: Text(
+                                    'Update Profile',
+                                    style: AppText.title2,
+                                  ),
+                                ),
                               ),
-                              ListTile(
-                                title: Text('Delete'),
-                                onTap: () {
-                                  // Handle delete action
-                                },
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 10.0),
+                                child: OutlinedButton(
+                                  style: AppButton.buttonStyleFarm,
+                                  onPressed: () {
+                                    deleteConfirmation(context);
+                                  },
+                                  child: Text(
+                                    'Delete Profile',
+                                    style: AppText.title2,
+                                  ),
+                                ),
                               ),
                             ],
                           ),
@@ -226,19 +327,16 @@ class _FarmProfileDetailPageState extends State<FarmProfileDetailPage> {
                         onTap: _toggleDDS,
                         child: ClipRRect(
                           borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(10),
-                            topRight: Radius.circular(10)
-                          ),
+                              topLeft: Radius.circular(10),
+                              topRight: Radius.circular(10)),
                           child: Container(
                             padding: EdgeInsets.all(16.0),
                             color: AppC.purple,
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(
-                                  'Decision Support Features',
-                                  style: AppText.text
-                                ),
+                                Text('Decision Support Features',
+                                    style: AppText.text),
                                 Icon(
                                   _isDDS
                                       ? Icons.arrow_drop_up
@@ -252,133 +350,140 @@ class _FarmProfileDetailPageState extends State<FarmProfileDetailPage> {
                       ),
                       if (_isDDS)
                         Container(
+                          width: 350,
                           color: AppC.lPurple,
+                          padding: EdgeInsets.symmetric(vertical: 10),
                           child: Column(
                             children: [
-                              ListTile(
-                                title: Text('Update'),
-                                onTap: () {
-                                  // Handle update action
-                                },
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 10.0),
+                                child: OutlinedButton(
+                                  style: AppButton.buttonStyleFarm,
+                                  onPressed: () {},
+                                  child: Text(
+                                    'Farm Navigation',
+                                    style: AppText.title2,
+                                  ),
+                                ),
                               ),
-                              ListTile(
-                                title: Text('Delete'),
-                                onTap: () {
-                                  // Handle delete action
-                                },
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 10.0),
+                                child: OutlinedButton(
+                                  style: AppButton.buttonStyleFarm,
+                                  onPressed: () {},
+                                  child: Text(
+                                    'Weather Forecast',
+                                    style: AppText.title2,
+                                  ),
+                                ),
+                              ),
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 10.0),
+                                child: OutlinedButton(
+                                  style: AppButton.buttonStyleFarm,
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            DiseaseRecognition(
+                                                uId: widget.userId,
+                                                farmId: profile['id'],
+                                                modelId: profile['Model'],
+                                                plant: plant!),
+                                      ),
+                                    ).then((result) {
+                                      if (result != null) {
+                                        setState(() {
+                                          _message = result;
+                                        });
+                                        refreshData();
+                                        Future.delayed(Duration(seconds: 10),
+                                            () {
+                                          if (mounted) {
+                                            setState(() {
+                                              _message = null;
+                                            });
+                                          }
+                                        });
+                                      }
+                                    });
+                                  },
+                                  child: Text(
+                                    'Disease Recognition',
+                                    style: AppText.title2,
+                                  ),
+                                ),
                               ),
                             ],
                           ),
                         ),
                       SizedBox(height: 30),
-                      Row(
-                        children: [
-                          OutlinedButton(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => UpdateFarmProfilePage(
-                                    colName: widget.colName,
-                                    docId: profile['id'],
-                                    userId: widget.userId,
-                                  ),
+                      InkWell(
+                        onTap: _toggleDH,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(10),
+                              topRight: Radius.circular(10)),
+                          child: Container(
+                            padding: EdgeInsets.all(16.0),
+                            color: AppC.purple,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text('Disease Recognition History',
+                                    style: AppText.text),
+                                Icon(
+                                  _isDH
+                                      ? Icons.arrow_drop_up
+                                      : Icons.arrow_drop_down,
+                                  color: AppC.dPurple,
                                 ),
-                              ).then((result) {
-                                if (result != null) {
-                                  setState(() {
-                                    _message = result;
-                                  });
-                                  refreshData();
-                                  Future.delayed(Duration(seconds: 5), () {
-                                    if (mounted) {
-                                      setState(() {
-                                        _message = null;
-                                      });
-                                    }
-                                  });
-                                }
-                              });
-                            },
-                            style: AppButton.buttonStyleUpdate,
-                            child: Text(
-                              'Update',
-                              style: AppText.button,
+                              ],
                             ),
                           ),
-                          SizedBox(width: 20),
-                          OutlinedButton(
-                            onPressed: () {
-                              deleteConfirmation(context);
-                            },
-                            style: AppButton.buttonStyleDelete,
-                            child: Text(
-                              'Delete',
-                              style: AppText.button,
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(width: 20),
-                      Row(
-                        children: [
-                          OutlinedButton(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => DiseaseRecognition(),
-                                ),
-                              );
-                            },
-                            style: AppButton.buttonStyleUpdate,
-                            child: Text(
-                              'Recognition',
-                              style: AppText.button,
-                            ),
-                          ),
-                          SizedBox(width: 20),
-                          OutlinedButton(
-                            onPressed: () {},
-                            style: AppButton.buttonStyleUpdate,
-                            child: Text(
-                              'Navigation',
-                              style: AppText.button,
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(width: 20),
-                      Row(
-                        children: [
-                          OutlinedButton(
-                            onPressed: () {},
-                            style: AppButton.buttonStyleUpdate,
-                            child: Text(
-                              'Weather',
-                              style: AppText.button,
-                            ),
-                          ),
-                          SizedBox(width: 20),
-                          OutlinedButton(
-                            onPressed: () {},
-                            style: AppButton.buttonStyleUpdate,
-                            child: Text(
-                              'History',
-                              style: AppText.button,
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(width: 20),
-                      OutlinedButton(
-                        onPressed: () {},
-                        style: AppButton.buttonStyleUpdate,
-                        child: Text(
-                          'AI History',
-                          style: AppText.button,
                         ),
                       ),
+                      if (_isDH)
+                        Container(
+                            constraints: AppBoxDecoration.boxConstraints2,
+                            color: AppC.lPurple,
+                            padding: EdgeInsets.symmetric(vertical: 10),
+                            child: buildDiseaseHistory('Disease History')),
+                      SizedBox(height: 30),
+                      InkWell(
+                        onTap: _toggleAH,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(10),
+                              topRight: Radius.circular(10)),
+                          child: Container(
+                            padding: EdgeInsets.all(16.0),
+                            color: AppC.purple,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text('AI History', style: AppText.text),
+                                Icon(
+                                  _isAH
+                                      ? Icons.arrow_drop_up
+                                      : Icons.arrow_drop_down,
+                                  color: AppC.dPurple,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      if (_isAH)
+                        Container(
+                            constraints: AppBoxDecoration.boxConstraints2,
+                            color: AppC.lPurple,
+                            padding: EdgeInsets.symmetric(vertical: 10),
+                            child: buildDiseaseHistory('AI History')),
                       SizedBox(height: 30),
                       Padding(
                         padding: EdgeInsets.symmetric(horizontal: paddingWidth),
@@ -578,7 +683,7 @@ class _FarmProfileDetailPageState extends State<FarmProfileDetailPage> {
                                       child: Text('No Available Pesticide',
                                           style: AppText.text))
                                   : SingleChildScrollView(
-                                    child: Column(
+                                      child: Column(
                                         children: pesticides.keys.map((id) {
                                           final pesticide = pesticides[id];
                                           return Column(
@@ -591,7 +696,8 @@ class _FarmProfileDetailPageState extends State<FarmProfileDetailPage> {
                                                     const EdgeInsets.symmetric(
                                                         vertical: 5.0,
                                                         horizontal: 10),
-                                                decoration: AppBoxDecoration.box2,
+                                                decoration:
+                                                    AppBoxDecoration.box2,
                                                 child: Row(
                                                   children: [
                                                     Text(
@@ -606,7 +712,8 @@ class _FarmProfileDetailPageState extends State<FarmProfileDetailPage> {
                                                           if (pesticide[
                                                                   'amount'] >
                                                               0) {
-                                                            pesticide['amount']--;
+                                                            pesticide[
+                                                                'amount']--;
                                                             updateAmount(
                                                                 id,
                                                                 pesticide[
@@ -627,7 +734,8 @@ class _FarmProfileDetailPageState extends State<FarmProfileDetailPage> {
                                                           pesticide['amount']++;
                                                           updateAmount(
                                                               id,
-                                                              pesticide['amount'],
+                                                              pesticide[
+                                                                  'amount'],
                                                               'Pesticide');
                                                         });
                                                       },
@@ -639,7 +747,7 @@ class _FarmProfileDetailPageState extends State<FarmProfileDetailPage> {
                                           );
                                         }).toList(),
                                       ),
-                                  ),
+                                    ),
                             ),
                           ],
                         ),
