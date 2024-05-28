@@ -103,7 +103,7 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
           ),
           child: AppBar(
             backgroundColor: AppC.dBlue,
-            title: Text('Update Profile'),
+            title: Text('Update Profile', style: AppText.title,),
           ),
         ),
       ),

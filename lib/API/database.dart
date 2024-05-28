@@ -102,16 +102,19 @@ class Database {
     await col.update(data);
   }
 
-  Future<DocumentSnapshot<Map<String, dynamic>>> retrieve_disease(String uId, String docId) {
+  Future<DocumentSnapshot<Map<String, dynamic>>> retrieve_disease(
+      String uId, String docId) {
     return ref.doc(uId).collection('treatment').doc(docId).get();
   }
 
   //update operation for disease
-  Future<void> updateDisease(Map<String, dynamic> data, String uId, String docId) async {
-        await ref.doc(uId).collection('treatment').doc(docId).update(data);
+  Future<void> updateDisease(
+      Map<String, dynamic> data, String uId, String docId) async {
+    await ref.doc(uId).collection('treatment').doc(docId).update(data);
   }
 
-  Future<DocumentSnapshot<Map<String, dynamic>>> reset_disease(String docId) async{
+  Future<DocumentSnapshot<Map<String, dynamic>>> reset_disease(
+      String docId) async {
     return tre.doc(docId).get();
   }
 
@@ -218,9 +221,21 @@ class Database {
     });
   }
 
-  Future<void> storeHistory(String uId, String plantName, String diseaseName, String farmId, String date, Map<String, dynamic> data, String history_type) async {
+  Future<void> storeHistory(
+      String uId,
+      String plantName,
+      String diseaseName,
+      String farmId,
+      String date,
+      Map<String, dynamic> data,
+      String history_type) async {
     try {
-      await ref.doc(uId).collection('farm').doc(farmId).collection(history_type).add({
+      await ref
+          .doc(uId)
+          .collection('farm')
+          .doc(farmId)
+          .collection(history_type)
+          .add({
         'Plant': plantName,
         'Disease Name': diseaseName,
         'Data': data,
@@ -232,17 +247,45 @@ class Database {
     }
   }
 
-  Future<List<Map<String, dynamic>>> retrieveHistory(String uId, String farmId, String history_type) async {
-  try {
-    QuerySnapshot querySnapshot = await ref.doc(uId).collection('farm').doc(farmId)
-        .collection(history_type)
-        .orderBy('timestamp', descending: true)
-        .get();
+  Future<List<Map<String, dynamic>>> retrieveHistory(
+      String uId, String farmId, String history_type) async {
+    try {
+      QuerySnapshot querySnapshot = await ref
+          .doc(uId)
+          .collection('farm')
+          .doc(farmId)
+          .collection(history_type)
+          .orderBy('timestamp', descending: true)
+          .get();
 
-    return querySnapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
-  } catch (e) {
-    print("Failed to retrieve history: $e");
-    return [];
+      return querySnapshot.docs
+          .map((doc) => doc.data() as Map<String, dynamic>)
+          .toList();
+    } catch (e) {
+      print("Failed to retrieve history: $e");
+      return [];
+    }
   }
-}
+
+  Future<List<Map<String, String>>> getFarms(String uId) async {
+   List<Map<String, String>> farms = [];
+    QuerySnapshot snapshot = await ref.doc(uId).collection('farm').get();
+    for (var doc in snapshot.docs) {
+      farms.add({
+        'name': doc['Name'], 
+        'address': doc['Address']
+      });
+    }
+    return farms;
+  }
+
+  Future<Map<String, String>> getAFarms(String uId, String farmId) async {
+    Map<String, String> farms = {};
+    DocumentSnapshot<Map<String, dynamic>> snapshot = await ref.doc(uId).collection('farm').doc(farmId).get();
+      farms = {
+        'name': snapshot['Name'], 
+        'address': snapshot['Address']
+      };
+    return farms;
+  }
 }

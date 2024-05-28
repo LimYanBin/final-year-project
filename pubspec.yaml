@@ -48,6 +48,10 @@ dependencies:
   geocoding: ^3.0.0
   firebase_auth: ^4.19.5
   intl: ^0.19.0
+  location: ^6.0.2
+  http: ^1.2.1
+  url_launcher: ^6.2.6
+  weather: ^3.1.1
 
 dev_dependencies:
   flutter_test:
@@ -117,12 +121,14 @@ flutter:
         - asset: assets/fonts/Roboto-ThinItalic.ttf
 
   assets:
-    - assets/model/Potato.tflite
-    - assets/model/potato_labels.txt
-    - assets/model/Strawberry.tflite
-    - assets/model/strawberry_labels.txt
-    - assets/model/Tomato.tflite
-    - assets/model/tomato_labels.txt
+    - assets/model/
+    - assets/weather/
+    # - assets/model/Potato.tflite
+    # - assets/model/potato_labels.txt
+    # - assets/model/Strawberry.tflite
+    # - assets/model/strawberry_labels.txt
+    # - assets/model/Tomato.tflite
+    # - assets/model/tomato_labels.txt
 
 
   # For details regarding fonts from package dependencies,

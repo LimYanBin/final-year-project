@@ -218,7 +218,7 @@ class _DiseaseDetailPageState extends State<DiseaseDetailPage> {
           ),
           child: AppBar(
             backgroundColor: AppC.dBlue,
-            title: Text('Edit Disease Detail'),
+            title: Text('Edit Disease Detail', style: AppText.title,),
             actions: [
               IconButton(
                   icon: Icon(Icons.restore),

@@ -202,7 +202,7 @@ class _UpdateProfilePageState extends State<UpdateFarmProfilePage> {
           ),
           child: AppBar(
             backgroundColor: AppC.dBlue,
-            title: Text('Update Profile'),
+            title: Text('Update Profile',style: AppText.title,),
           ),
         ),
       ),

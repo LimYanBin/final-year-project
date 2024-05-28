@@ -173,10 +173,17 @@ class _DiseaseRecognitionState extends State<DiseaseRecognition> {
             ),
             child: Center(
               child: _imageFile == null
-                  ? Text(
-                      'No image captured.',
-                      style: AppText.text,
-                    )
+                  ? Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                          'No Image Captured',
+                          style: AppText.text,
+                        ),
+                      SizedBox(height: 20,),
+                      Text('Current Model: ${widget.plant}', style: AppText.warning.copyWith(fontSize: 18),)
+                    ],
+                  )
                   : Align(
                       alignment: Alignment.topCenter,
                       child: Container(

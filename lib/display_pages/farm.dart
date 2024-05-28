@@ -1,7 +1,9 @@
 // ignore_for_file: use_build_context_synchronously, avoid_print
 
 import 'package:aig/API/disease_recognition.dart';
+import 'package:aig/API/navigation_page.dart';
 import 'package:aig/display_pages/history.dart';
+import 'package:aig/pages/weather_page.dart';
 import 'package:aig/update_pages/farm.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -108,6 +110,13 @@ class _FarmProfileDetailPageState extends State<FarmProfileDetailPage> {
         plant = 'Tomato';
       }
     });
+  }
+
+  // Function for handling maximum characters display
+  String truncateWithEllipsis(int maxLength, String text) {
+    return (text.length <= maxLength)
+        ? text
+        : '${text.substring(0, maxLength - 3)}...';
   }
 
   Widget buildDiseaseHistory(String historyType) {
@@ -275,6 +284,26 @@ class _FarmProfileDetailPageState extends State<FarmProfileDetailPage> {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
+                                        builder: (context) => NavigationPage(
+                                            destination: profile['Address']),
+                                      ),
+                                    );
+                                  },
+                                  child: Text(
+                                    'Farm Navigation',
+                                    style: AppText.title2,
+                                  ),
+                                ),
+                              ),
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 10.0),
+                                child: OutlinedButton(
+                                  style: AppButton.buttonStyleFarm,
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
                                         builder: (context) =>
                                             UpdateFarmProfilePage(
                                           colName: widget.colName,
@@ -360,19 +389,12 @@ class _FarmProfileDetailPageState extends State<FarmProfileDetailPage> {
                                     const EdgeInsets.symmetric(vertical: 10.0),
                                 child: OutlinedButton(
                                   style: AppButton.buttonStyleFarm,
-                                  onPressed: () {},
-                                  child: Text(
-                                    'Farm Navigation',
-                                    style: AppText.title2,
-                                  ),
-                                ),
-                              ),
-                              Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 10.0),
-                                child: OutlinedButton(
-                                  style: AppButton.buttonStyleFarm,
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(builder: (context) => WeatherPage(uId: widget.userId, farmId: profile['id'], selection: 0,)),
+                                    );
+                                  },
                                   child: Text(
                                     'Weather Forecast',
                                     style: AppText.title2,
@@ -620,8 +642,11 @@ class _FarmProfileDetailPageState extends State<FarmProfileDetailPage> {
                                                 child: Row(
                                                   children: [
                                                     Text(
-                                                        fertilizer['Name'] ??
-                                                            'Unknown',
+                                                        truncateWithEllipsis(
+                                                            10,
+                                                            fertilizer[
+                                                                    'Name'] ??
+                                                                'Unknown'),
                                                         style: AppText.text),
                                                     Spacer(),
                                                     IconButton(
@@ -701,8 +726,10 @@ class _FarmProfileDetailPageState extends State<FarmProfileDetailPage> {
                                                 child: Row(
                                                   children: [
                                                     Text(
-                                                        pesticide['Name'] ??
-                                                            'Unknown',
+                                                        truncateWithEllipsis(
+                                                            18,
+                                                            pesticide['Name'] ??
+                                                                'Unknown'),
                                                         style: AppText.text),
                                                     Spacer(),
                                                     IconButton(
