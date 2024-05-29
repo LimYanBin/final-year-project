@@ -2,9 +2,8 @@ import 'dart:async';
 import 'package:aig/API/database.dart';
 import 'package:aig/API/weather_services.dart';
 import 'package:aig/theme.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 
 class WeatherPage extends StatefulWidget {
@@ -32,7 +31,6 @@ class _WeatherPageState extends State<WeatherPage> {
   List<Map<String, String>> farms = [];
   Future<List<Weather>>? _weatherFuture;
   Future<CurrentWeather>? _weatherCurrent;
-
   bool isLoading = false;
 
   @override
@@ -137,6 +135,10 @@ class _WeatherPageState extends State<WeatherPage> {
   String getFullDate(DateTime dateTime) {
     return DateFormat('EEEE MMMM d').format(
         dateTime); // 'MMMM d' gives the full month name and day of the month
+  }
+
+  String getTime(DateTime dateTime) {
+    return DateFormat('hh:mm a').format(dateTime); // Format: "hh:mm AM/PM"
   }
 
   @override
@@ -510,39 +512,65 @@ class _WeatherPageState extends State<WeatherPage> {
                       ),
                     ),
                     SizedBox(height: 20),
-                     Column(
-                      children: [
-                        Text('Today', style: AppText.title2),
-                        FutureBuilder<List<Weather>>(
-                          future: _weatherFuture,
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return Center(
-                                  child: CircularProgressIndicator());
-                            } else if (snapshot.hasError) {
-                              return Center(
-                                  child: Text('Error: ${snapshot.error}'));
-                            } else if (!snapshot.hasData ||
-                                snapshot.data!.isEmpty) {
-                              return Center(
-                                  child: Text('No weather data available',
-                                      style: AppText.title2));
-                            } else {
-                              List<Weather> weatherList = snapshot.data!;
-                              return SingleChildScrollView(
-                                scrollDirection: Axis.horizontal,
-                                child: Row(
-                                  children: weatherList
-                                      .map((weather) =>
-                                          _buildWeatherCard(weather))
-                                      .toList(),
-                                ),
-                              );
-                            }
-                          },
-                        ),
-                      ],
+                    FutureBuilder<List<Weather>>(
+                      future: _weatherFuture,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return Center(child: CircularProgressIndicator());
+                        } else if (snapshot.hasError) {
+                          return Center(
+                              child: Text('Error: ${snapshot.error}'));
+                        } else if (!snapshot.hasData ||
+                            snapshot.data!.isEmpty) {
+                          return Center(
+                              child: Text('No weather data available',
+                                  style: AppText.title2));
+                        } else {
+                          List<Weather> weatherList = snapshot.data!;
+
+                          var groupedWeather = groupBy(
+                              weatherList,
+                              (Weather w) => w.dateTime
+                                  .toLocal()
+                                  .toIso8601String()
+                                  .substring(0, 10));
+
+                          var todayDate = DateTime.now()
+                              .toLocal()
+                              .toIso8601String()
+                              .substring(0, 10);
+
+                          return SingleChildScrollView(
+                            scrollDirection: Axis.vertical,
+                            child: Column(
+                              children: groupedWeather.entries.map((entry) {
+                                String date = entry.key;
+                                List<Weather> weathers = entry.value;
+                                return Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    todayDate == date
+                                        ? Text('Today', style: AppText.title2)
+                                        : Text(
+                                            getFullDate(DateTime.parse(date)),
+                                            style: AppText.title2),
+                                    SingleChildScrollView(
+                                      scrollDirection: Axis.horizontal,
+                                      child: Row(
+                                        children: weathers
+                                            .map((weather) =>
+                                                _buildWeatherCard(weather))
+                                            .toList(),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              }).toList(),
+                            ),
+                          );
+                        }
+                      },
                     ),
                   ],
                 ),
@@ -558,23 +586,21 @@ class _WeatherPageState extends State<WeatherPage> {
         padding: EdgeInsets.all(10),
         child: Column(
           children: [
-            Text('${weather.dateTime}',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            Text('Temperature: ${weather.temperature}°C',
-                style: TextStyle(fontSize: 16)),
-            Text(weather.main, style: TextStyle(fontSize: 16)),
-            Text(weather.description, style: TextStyle(fontSize: 16)),
+            Text(getTime(weather.dateTime), style: AppText.text2),
             Image.asset('assets/weather/${weather.icon}.png',
                 width: 50, height: 50),
-            Text('Pressure: ${weather.pressure} hPa',
+            Text('${weather.temperature}°C', style: TextStyle(fontSize: 16)),
+            Text('${weather.main} - ${weather.description}', style: TextStyle(fontSize: 16)),
+            Text('Max: ${weather.tempMax}°C', style: TextStyle(fontSize: 16)),
+            Text('Min: ${weather.tempMin}°C', style: TextStyle(fontSize: 16)),
+            Text('Wind Speed: ${weather.windSpeed} m/s',
                 style: TextStyle(fontSize: 16)),
             Text('Humidity: ${weather.humidity}%',
                 style: TextStyle(fontSize: 16)),
+            Text('Pressure: ${weather.pressure} hPa',
+                style: TextStyle(fontSize: 16)),
             Text('Clouds: ${weather.clouds}%', style: TextStyle(fontSize: 16)),
-            Text('Wind Speed: ${weather.windSpeed} m/s',
-                style: TextStyle(fontSize: 16)),
-            Text('Wind Degree: ${weather.windDegree}°',
-                style: TextStyle(fontSize: 16)),
+            Text('Rain Volume: ${weather.rainVolume} mm',style: TextStyle(fontSize: 16)),
           ],
         ),
       ),

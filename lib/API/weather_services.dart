@@ -60,6 +60,8 @@ class GeocodingService {
 class Weather {
   final DateTime dateTime;
   final double temperature;
+  final double tempMax;
+  final double tempMin;
   final String main;
   final String description;
   final String icon;
@@ -73,6 +75,8 @@ class Weather {
   Weather({
     required this.dateTime,
     required this.temperature,
+    required this.tempMax,
+    required this.tempMin,
     required this.main,
     required this.description,
     required this.icon,
@@ -88,6 +92,8 @@ class Weather {
     return Weather(
       dateTime: DateTime.fromMillisecondsSinceEpoch(json['dt'] * 1000),
       temperature: (json['main']['temp'] ?? 0.0).toDouble(),
+      tempMax: (json['main']['temp_max'] ?? 0.0).toDouble(),
+      tempMin: (json['main']['temp_min'] ?? 0.0).toDouble(),
       pressure: (json['main']['pressure'] ?? 0),
       humidity: (json['main']['humidity'] ?? 0),
       main: json['weather'][0]['main'],
@@ -96,7 +102,7 @@ class Weather {
       clouds: (json['clouds']['all'] ?? 0),
       windSpeed: (json['wind']['speed'] ?? 0.0).toDouble(),
       windDegree: (json['wind']['deg'] ?? 0),
-      rainVolume: (json['rain'] != null ? json['rain']['1h'] : 0.0)?.toDouble(),
+      rainVolume: (json['rain'] != null ? json['rain']['1h'] ?? 0.0 : 0.0)?.toDouble(),
     );
   }
 }

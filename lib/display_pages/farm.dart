@@ -643,7 +643,7 @@ class _FarmProfileDetailPageState extends State<FarmProfileDetailPage> {
                                                   children: [
                                                     Text(
                                                         truncateWithEllipsis(
-                                                            10,
+                                                            18,
                                                             fertilizer[
                                                                     'Name'] ??
                                                                 'Unknown'),
