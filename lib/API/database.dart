@@ -267,6 +267,30 @@ class Database {
     }
   }
 
+  Future<void> storeAIHistory(
+      String uId,
+      String farmId,
+      String date,
+      String time,
+      Map<String, List<String>> data,
+      String history_type) async {
+    try {
+      await ref
+          .doc(uId)
+          .collection('farm')
+          .doc(farmId)
+          .collection(history_type)
+          .add({
+        'Data': data,
+        'Date': date,
+        'Time' : time,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      print("Failed to store AI history: $e");
+    }
+  }
+
   Future<List<Map<String, String>>> getFarms(String uId) async {
    List<Map<String, String>> farms = [];
     QuerySnapshot snapshot = await ref.doc(uId).collection('farm').get();

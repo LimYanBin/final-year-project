@@ -8,8 +8,8 @@ import 'package:intl/intl.dart';
 
 class WeatherPage extends StatefulWidget {
   final String uId;
-  final String
-      farmId; // This selection is to indicate call from homepage or farm page
+  final String farmId; 
+  // This selection is to indicate call from homepage or farm page
   final int selection;
   const WeatherPage(
       {super.key,
@@ -68,8 +68,7 @@ class _WeatherPageState extends State<WeatherPage> {
       isLoading = true;
     });
 
-    Map<String, String> retrievedFarms =
-        await db.getAFarms(widget.uId, widget.farmId);
+    Map<String, String> retrievedFarms = await db.getAFarms(widget.uId, widget.farmId);
 
     setState(() {
       farms = [retrievedFarms];

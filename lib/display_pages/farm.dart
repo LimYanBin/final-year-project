@@ -2,6 +2,8 @@
 
 import 'package:aig/API/disease_recognition.dart';
 import 'package:aig/API/navigation_page.dart';
+import 'package:aig/Recommendation/report.dart';
+import 'package:aig/display_pages/ai_history.dart';
 import 'package:aig/display_pages/history.dart';
 import 'package:aig/pages/weather_page.dart';
 import 'package:aig/update_pages/farm.dart';
@@ -159,6 +161,47 @@ class _FarmProfileDetailPageState extends State<FarmProfileDetailPage> {
           );
         });
   }
+
+  Widget buildAIHistory(String historyType) {
+    return FutureBuilder<List<Map<String, dynamic>>>(
+        future: db.retrieveHistory(widget.userId, profile['id'], historyType),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Center(
+                child: Text(
+              'No history available',
+              style: AppText.text2,
+            ));
+          }
+          final historyList = snapshot.data!;
+          return ListView.builder(
+            itemCount: historyList.length,
+            itemBuilder: (context, index) {
+              final history = historyList[index];
+              return ListTile(
+                title: Text(
+                  '${history['Date']} - ${history['Time']}',
+                  style: AppText.text,
+                ),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AIHistory(history: history),
+                    ),
+                  );
+                },
+              );
+            },
+          );
+        });
+    }
 
   @override
   Widget build(BuildContext context) {
@@ -392,7 +435,12 @@ class _FarmProfileDetailPageState extends State<FarmProfileDetailPage> {
                                   onPressed: () {
                                     Navigator.push(
                                       context,
-                                      MaterialPageRoute(builder: (context) => WeatherPage(uId: widget.userId, farmId: profile['id'], selection: 0,)),
+                                      MaterialPageRoute(
+                                          builder: (context) => WeatherPage(
+                                                uId: widget.userId,
+                                                farmId: profile['id'],
+                                                selection: 0,
+                                              )),
                                     );
                                   },
                                   child: Text(
@@ -436,6 +484,19 @@ class _FarmProfileDetailPageState extends State<FarmProfileDetailPage> {
                                   },
                                   child: Text(
                                     'Disease Recognition',
+                                    style: AppText.title2,
+                                  ),
+                                ),
+                              ),
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 10.0),
+                                child: OutlinedButton(
+                                  style: AppButton.buttonStyleFarm,
+                                  onPressed: () {
+                                    Navigator.push(context, MaterialPageRoute(builder: ((context) => RecommendationPage(uId: widget.userId, farmId: profile['id'],))));},
+                                  child: Text(
+                                    'AI Recommendation',
                                     style: AppText.title2,
                                   ),
                                 ),
@@ -488,7 +549,8 @@ class _FarmProfileDetailPageState extends State<FarmProfileDetailPage> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text('AI History', style: AppText.text),
+                                Text('AI Recommendation History',
+                                    style: AppText.text),
                                 Icon(
                                   _isAH
                                       ? Icons.arrow_drop_up
@@ -505,7 +567,7 @@ class _FarmProfileDetailPageState extends State<FarmProfileDetailPage> {
                             constraints: AppBoxDecoration.boxConstraints2,
                             color: AppC.lPurple,
                             padding: EdgeInsets.symmetric(vertical: 10),
-                            child: buildDiseaseHistory('AI History')),
+                            child: buildAIHistory('AI History')),
                       SizedBox(height: 30),
                       Padding(
                         padding: EdgeInsets.symmetric(horizontal: paddingWidth),

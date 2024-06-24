@@ -228,7 +228,7 @@ class _FarmPageState extends State<FarmPage> {
                   shape: CircleBorder(),
                   backgroundColor: _showButton ? AppC.white : AppC.lBlurGrey,
                   child: Icon(
-                    _showButton ? Icons.close : Icons.build,
+                    _showButton ? Icons.close : Icons.lightbulb_outline,
                   ),
                 ),
               ),

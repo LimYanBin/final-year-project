@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:aig/pages/auth.dart';
+import 'package:aig/pages/weather_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:aig/add_pages/fertilizer.dart';
@@ -25,13 +26,30 @@ class _FertilizerPageState extends State<FertilizerPage> {
   String? _message;
   Timer? _messageClearTimer;
 
+  bool _showButton = false;
+
   @override
   void dispose() {
     _messageClearTimer?.cancel();
     super.dispose();
   }
 
+  void _toggleButton() {
+    setState(() {
+      _showButton = !_showButton;
+    });
+  }
+
+  void _hideButtons() {
+    if (_showButton) {
+      setState(() {
+        _showButton = false;
+      });
+    }
+  }
+
   void _signOut() async {
+    _hideButtons();
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (context) => AuthScreen()),
@@ -69,108 +87,164 @@ class _FertilizerPageState extends State<FertilizerPage> {
           ),
         ),
       ),
-      body: Column(
-        children: [
-          if (_message != null) ...[
-            SizedBox(height: 10),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: paddingValue),
-              child: Container(
-                color: AppC.gold,
-                padding: EdgeInsets.all(8.0),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.check_circle,
-                      color: AppC.green2,
-                      size: 30.0,
-                    ),
-                    SizedBox(width: 10),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+      body: GestureDetector(
+        onTap: _hideButtons,
+        child: Stack(
+          children: [Column(
+            children: [
+              if (_message != null) ...[
+                SizedBox(height: 10),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: paddingValue),
+                  child: Container(
+                    color: AppC.gold,
+                    padding: EdgeInsets.all(8.0),
+                    child: Row(
                       children: [
-                        Text(
-                          _message!,
-                          style: TextStyle(
-                            fontFamily: 'Roboto',
-                            color: AppC.green2,
-                            fontWeight: FontWeight.normal,
-                            fontSize: 20.0,
-                          ),
+                        Icon(
+                          Icons.check_circle,
+                          color: AppC.green2,
+                          size: 30.0,
+                        ),
+                        SizedBox(width: 10),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              _message!,
+                              style: TextStyle(
+                                fontFamily: 'Roboto',
+                                color: AppC.green2,
+                                fontWeight: FontWeight.normal,
+                                fontSize: 20.0,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                  ],
+                  ),
                 ),
-              ),
-            ),
-          ],
-          SizedBox(height: 10),
-          Center(
-            child: OutlinedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => AddFertilizer(userId: userId)),
-                ).then((result) {
-                  if (result != null) {
-                    setState(() {
-                      _message = result;
-                    });
-                    _messageClearTimer = Timer(Duration(seconds: 5), () {
-                      if (mounted) {
+              ],
+              SizedBox(height: 10),
+              Center(
+                child: OutlinedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => AddFertilizer(userId: userId)),
+                    ).then((result) {
+                      if (result != null) {
                         setState(() {
-                          _message = null;
+                          _message = result;
+                        });
+                        _messageClearTimer = Timer(Duration(seconds: 5), () {
+                          if (mounted) {
+                            setState(() {
+                              _message = null;
+                            });
+                          }
                         });
                       }
                     });
-                  }
-                });
-              },
-              style: AppButton.buttonStyleAdd,
-              child: Text(
-                'Add New Profile',
-                style: AppText.button,
+                  },
+                  style: AppButton.buttonStyleAdd,
+                  child: Text(
+                    'Add New Profile',
+                    style: AppText.button,
+                  ),
+                ),
               ),
-            ),
-          ),
-          SizedBox(height: 10),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: StreamBuilder<QuerySnapshot>(
-                stream: db.retrieve_fertilizer(userId),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(
-                      child: CircularProgressIndicator());
-                  }
-
-                  if (snapshot.hasError) {
-                    return Center(child: Text('Error: ${snapshot.error}'));
-                  }
-
-                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                    return Center(child: Text('No fertilizer profiles found.'));
-                  }
-
-                  final profiles = snapshot.data!.docs;
-
-                  return ListView.builder(
-                    itemCount: profiles.length,
-                    itemBuilder: (context, index) {
-                      final doc = profiles[index];
-                      final profile =
-                          profiles[index].data() as Map<String, dynamic>;
-                      profile['id'] = doc.id;
-                      return ProfileCard(profile: profile, userId: userId,);
+              SizedBox(height: 10),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: StreamBuilder<QuerySnapshot>(
+                    stream: db.retrieve_fertilizer(userId),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Center(child: CircularProgressIndicator());
+                      }
+          
+                      if (snapshot.hasError) {
+                        return Center(child: Text('Error: ${snapshot.error}'));
+                      }
+          
+                      if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                        return Center(child: Text('No fertilizer profiles found.'));
+                      }
+          
+                      final profiles = snapshot.data!.docs;
+          
+                      return ListView.builder(
+                        itemCount: profiles.length,
+                        itemBuilder: (context, index) {
+                          final doc = profiles[index];
+                          final profile =
+                              profiles[index].data() as Map<String, dynamic>;
+                          profile['id'] = doc.id;
+                          return ProfileCard(
+                            profile: profile,
+                            userId: userId,
+                            onProfileTap: _hideButtons
+                          );
+                        },
+                      );
                     },
-                  );
-                },
+                  ),
+                ),
+              ),
+            ],
+          ),
+          if (_showButton)
+              ...[
+                Positioned(
+                  bottom: 50,
+                  left: 220,
+                  child: FloatingActionButton(
+                    backgroundColor: AppC.lBlurGrey,
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => WeatherPage(uId: widget.userId, farmId: '', selection: 1,)),
+                      );
+                    },
+                    heroTag: 'weatherForecastButton', // Unique tag
+                    tooltip: 'Weather Forecast',
+                    child: Icon(Icons.cloud),
+                  ),
+                ),
+                Positioned(
+                  bottom: 100,
+                  left: 285,
+                  child: FloatingActionButton(
+                    backgroundColor: AppC.lBlurGrey,
+                    onPressed: () {
+                      // Implement AI chatbot functionality here
+                    },
+                    heroTag: 'aiChatbotButton', 
+                    tooltip: 'AI Assistant',
+                    child: Icon(Icons.miscellaneous_services),
+                  ),
+                ),
+              ],
+            Align(
+              alignment: Alignment.bottomRight,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: FloatingActionButton(
+                  onPressed: _toggleButton,
+                  shape: CircleBorder(),
+                  backgroundColor: _showButton ? AppC.white : AppC.lBlurGrey,
+                  child: Icon(
+                    _showButton ? Icons.close : Icons.lightbulb_outline,
+                  ),
+                ),
               ),
             ),
-          ),
-        ],
+          ]
+        ),
       ),
     );
   }
@@ -201,8 +275,9 @@ class _FertilizerPageState extends State<FertilizerPage> {
 class ProfileCard extends StatelessWidget {
   final Map<String, dynamic> profile;
   final String userId;
+  final VoidCallback onProfileTap;
 
-  const ProfileCard({super.key, required this.profile, required this.userId});
+  const ProfileCard({super.key, required this.profile, required this.userId, required this.onProfileTap});
 
   // Function for handling maximum characters display
   String truncateWithEllipsis(int maxLength, String text) {
@@ -215,6 +290,7 @@ class ProfileCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
+        onProfileTap();
         Navigator.push(
             context,
             MaterialPageRoute(

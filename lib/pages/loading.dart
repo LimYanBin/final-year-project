@@ -11,8 +11,8 @@ class LoadingPage extends StatefulWidget {
   State<LoadingPage> createState() => _LoadingPageState();
 }
 
-class _LoadingPageState extends State<LoadingPage> with SingleTickerProviderStateMixin {
-
+class _LoadingPageState extends State<LoadingPage>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
 
   @override
@@ -24,7 +24,6 @@ class _LoadingPageState extends State<LoadingPage> with SingleTickerProviderStat
       duration: const Duration(seconds: 1),
       vsync: this,
     )..repeat();
-
 
     // Set a timer to navigate to the homepage after 5 seconds
     Timer(Duration(seconds: 3), () {
@@ -42,28 +41,40 @@ class _LoadingPageState extends State<LoadingPage> with SingleTickerProviderStat
     _controller.dispose();
     super.dispose();
   }
-  
+
   @override
   Widget build(BuildContext context) {
-     return Scaffold(
-      backgroundColor: AppC.lBlue,
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            RotationTransition(
-              turns: _controller,
-              child: Icon(
-                Icons.refresh,
-                size: 50.0,
+    return Scaffold(
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Colors.blue.withOpacity(0.8), // Start color
+              AppC.bgdWhite.withOpacity(0.6), // End color
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              RotationTransition(
+                turns: _controller,
+                child: Icon(
+                  Icons.refresh,
+                  size: 50.0,
+                  color: AppC.blurGrey,
+                ),
               ),
-            ),
-            SizedBox(height: 20),
-            Text(
-              'Loading to Home Page',
-              style: AppText.text,
-            ),
-          ],
+              SizedBox(height: 20),
+              Text(
+                'Loading to Home Page',
+                style: AppText.text,
+              ),
+            ],
+          ),
         ),
       ),
     );

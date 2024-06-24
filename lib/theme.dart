@@ -36,6 +36,13 @@ class AppText {
     fontFamily: 'Roboto',
   );
 
+  static const TextStyle title3 = TextStyle(
+    fontSize: 18.0,
+    fontWeight: FontWeight.w500,
+    color: AppC.black,
+    fontFamily: 'Roboto',
+  );
+
   static const TextStyle text = TextStyle(
     fontFamily: 'Roboto',
     color: AppC.black,

@@ -53,6 +53,7 @@ dependencies:
   url_launcher: ^6.2.6
   weather: ^3.1.1
   collection: ^1.18.0
+  flare_flutter: ^3.0.2
 
 dev_dependencies:
   flutter_test:
