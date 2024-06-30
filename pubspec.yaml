@@ -54,6 +54,11 @@ dependencies:
   weather: ^3.1.1
   collection: ^1.18.0
   flare_flutter: ^3.0.2
+  speech_to_text: ^6.6.0
+  flutter_background_service: ^5.0.6
+  provider: ^6.1.2
+  permission_handler: ^11.3.1
+  flutter_background: ^1.2.0
 
 dev_dependencies:
   flutter_test:

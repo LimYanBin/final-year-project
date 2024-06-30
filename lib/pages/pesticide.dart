@@ -1,7 +1,6 @@
 import 'dart:async';
-
+import 'package:aig/main.dart';
 import 'package:aig/pages/auth.dart';
-import 'package:aig/pages/weather_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:aig/add_pages/pesticide.dart';
@@ -9,10 +8,12 @@ import 'package:aig/display_pages/both.dart';
 import 'package:aig/theme.dart';
 import 'package:aig/API/database.dart';
 
+// ignore: must_be_immutable
 class PesticidePage extends StatefulWidget {
   final String userId;
+  final ValueNotifier<bool> isAdd;
 
-  const PesticidePage({super.key, required this.userId});
+  const PesticidePage({super.key, required this.userId, required this.isAdd});
 
   @override
   State<PesticidePage> createState() => _PesticidePageState();
@@ -26,26 +27,29 @@ class _PesticidePageState extends State<PesticidePage> {
   String? _message;
   Timer? _messageClearTimer;
 
-  bool _showButton = false;
+  @override
+  void initState() {
+    super.initState();
+    widget.isAdd.addListener(_checkAdd);
+  }
 
   @override
   void dispose() {
     _messageClearTimer?.cancel();
+    widget.isAdd.removeListener(_checkAdd);
     super.dispose();
   }
 
-  void _toggleButton() {
-    setState(() {
-      _showButton = !_showButton;
-    });
+  void _checkAdd() {
+    if (widget.isAdd.value) {
+      _navigateToAddPesticide();
+      widget.isAdd.value = false;  // Reset after handling
+    }
   }
 
   void _hideButtons() {
-    if (_showButton) {
-      setState(() {
-        _showButton = false;
-      });
-    }
+    HomePageState? homePageState = context.findAncestorStateOfType<HomePageState>();
+    homePageState?.hideButtons();
   }
 
   void _signOut() async {
@@ -55,6 +59,26 @@ class _PesticidePageState extends State<PesticidePage> {
       MaterialPageRoute(builder: (context) => AuthScreen()),
       (Route<dynamic> route) => false,
     );
+  }
+
+  void _navigateToAddPesticide() async {
+    _hideButtons();
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => AddPesticide(userId: widget.userId)),
+    );
+    if (result != null) {
+      setState(() {
+        _message = result;
+      });
+      _messageClearTimer = Timer(Duration(seconds: 5), () {
+        if (mounted) {
+          setState(() {
+            _message = null;
+          });
+        }
+      });
+    }
   }
 
   @override
@@ -129,25 +153,7 @@ class _PesticidePageState extends State<PesticidePage> {
               SizedBox(height: 10),
               Center(
                 child: OutlinedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => AddPesticide(userId: userId)),
-                    ).then((result) {
-                      if (result != null) {
-                        setState(() {
-                          _message = result;
-                        });
-                        _messageClearTimer = Timer(Duration(seconds: 5), () {
-                          if (mounted) {
-                            setState(() {
-                              _message = null;
-                            });
-                          }
-                        });
-                      }
-                    });
-                  },
+                  onPressed: _navigateToAddPesticide,
                   style: AppButton.buttonStyleAdd,
                   child: Text(
                     'Add New Profile',
@@ -191,52 +197,6 @@ class _PesticidePageState extends State<PesticidePage> {
               ),
             ],
           ),
-          if (_showButton)
-              ...[
-                Positioned(
-                  bottom: 50,
-                  left: 220,
-                  child: FloatingActionButton(
-                    backgroundColor: AppC.lBlurGrey,
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => WeatherPage(uId: widget.userId, farmId: '', selection: 1,)),
-                      );
-                    },
-                    heroTag: 'weatherForecastButton', // Unique tag
-                    tooltip: 'Weather Forecast',
-                    child: Icon(Icons.cloud),
-                  ),
-                ),
-                Positioned(
-                  bottom: 100,
-                  left: 285,
-                  child: FloatingActionButton(
-                    backgroundColor: AppC.lBlurGrey,
-                    onPressed: () {
-                      // Implement AI chatbot functionality here
-                    },
-                    heroTag: 'aiChatbotButton', 
-                    tooltip: 'AI Assistant',
-                    child: Icon(Icons.miscellaneous_services),
-                  ),
-                ),
-              ],
-            Align(
-              alignment: Alignment.bottomRight,
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: FloatingActionButton(
-                  onPressed: _toggleButton,
-                  shape: CircleBorder(),
-                  backgroundColor: _showButton ? AppC.white : AppC.lBlurGrey,
-                  child: Icon(
-                    _showButton ? Icons.close : Icons.lightbulb_outline,
-                  ),
-                ),
-              ),
-            ),
           ]
         ),
       ),

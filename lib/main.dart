@@ -1,11 +1,16 @@
-import 'package:aig/pages/auth.dart';
-import 'package:aig/pages/disease.dart';
-import 'package:aig/pages/farm.dart';
+// Old version checkpoint
+// ignore_for_file: avoid_print
+
+import 'package:aig/bot/chatbot.dart';
+import 'package:aig/pages/weather_page.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'pages/auth.dart';
+import 'pages/disease.dart';
+import 'pages/farm.dart';
 import 'pages/fertilizer.dart';
 import 'pages/pesticide.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'theme.dart';
 
 void main() async {
@@ -30,8 +35,6 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => AuthScreen(),
-        //'/loading': (context) => LoadingPage(userId: ''),
-        //'/treatment':(context) => TreatmentPage(userId: 'nCNcPKmcfu2d0fZcawbO', diseaseName: 'Early Blight', plantName: 'Potato')
       },
     );
   }
@@ -42,17 +45,53 @@ class HomePage extends StatefulWidget {
   const HomePage({super.key, required this.userId});
 
   @override
-  // ignore: library_private_types_in_public_api
-  _HomePageState createState() => _HomePageState();
+  State<HomePage> createState() => HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
+  bool _showButton = false;
+  final ValueNotifier<bool> _isAdd = ValueNotifier<bool>(false);
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
+      _isAdd.value = false;
     });
+    hideButtons();
+  }
+
+  void _toggleButton() {
+    setState(() {
+      _showButton = !_showButton;
+    });
+  }
+
+  void hideButtons() {
+    if (_showButton) {
+      setState(() {
+        _showButton = false;
+      });
+    }
+  }
+
+  void _handleStatus(int status) {
+    final newIndex = status - 1;
+
+    setState(() {
+      _selectedIndex = newIndex;
+      _isAdd.value = false;
+    });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _isAdd.value = true;
+    });
+  }
+
+    @override
+  void dispose() {
+    _isAdd.dispose();
+    super.dispose();
   }
 
   @override
@@ -60,15 +99,78 @@ class _HomePageState extends State<HomePage> {
     final String userId = widget.userId;
 
     final List<Widget> widgetOptions = <Widget>[
-      FarmPage(userId: userId),
-      FertilizerPage(userId: userId),
-      PesticidePage(userId: userId),
+      FarmPage(userId: userId, isAdd: _isAdd,),
+      FertilizerPage(userId: userId, isAdd: _isAdd),
+      PesticidePage(userId: userId, isAdd: _isAdd),
       DiseaseDetails(userId: userId),
     ];
 
     return Scaffold(
-      body: Center(
-        child: widgetOptions.elementAt(_selectedIndex),
+      body: Stack(
+        children: [
+          Center(
+            child: widgetOptions.elementAt(_selectedIndex),
+          ),
+          if (_showButton) ...[
+            Positioned(
+              bottom: 50,
+              left: 220,
+              child: FloatingActionButton(
+                backgroundColor: AppC.lBlurGrey,
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => WeatherPage(
+                        uId: userId,
+                        farmId: '',
+                        selection: 1,
+                      ),
+                    ),
+                  );
+                },
+                heroTag: 'weatherForecastButton',
+                tooltip: 'Weather Forecast',
+                child: Icon(Icons.cloud),
+              ),
+            ),
+            Positioned(
+              bottom: 100,
+              left: 285,
+              child: FloatingActionButton(
+                backgroundColor: AppC.lBlurGrey,
+                onPressed: () async {
+                  final status = await showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return ChatbotDialog(userId: userId);
+                    },
+                  );
+                  if (status != null && status != 0) {
+                    _handleStatus(status);
+                  }
+                },
+                heroTag: 'aiChatbotButton',
+                tooltip: 'AI Assistant',
+                child: Icon(Icons.engineering_rounded),
+              ),
+            ),
+          ],
+          Align(
+            alignment: Alignment.bottomRight,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: FloatingActionButton(
+                onPressed: _toggleButton,
+                shape: CircleBorder(),
+                backgroundColor: _showButton ? AppC.white : AppC.lBlurGrey,
+                child: Icon(
+                  _showButton ? Icons.close : Icons.lightbulb_outline,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
       bottomNavigationBar: ClipRRect(
         borderRadius: BorderRadius.only(

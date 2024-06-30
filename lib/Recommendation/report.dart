@@ -1,6 +1,6 @@
 import 'package:aig/API/database.dart';
 import 'package:aig/API/weather_services.dart';
-import 'package:aig/Recommendation/engine.dart';
+import 'package:aig/recommendation/engine.dart';
 import 'package:aig/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';

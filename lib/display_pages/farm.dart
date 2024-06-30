@@ -2,7 +2,7 @@
 
 import 'package:aig/API/disease_recognition.dart';
 import 'package:aig/API/navigation_page.dart';
-import 'package:aig/Recommendation/report.dart';
+import 'package:aig/recommendation/report.dart';
 import 'package:aig/display_pages/ai_history.dart';
 import 'package:aig/display_pages/history.dart';
 import 'package:aig/pages/weather_page.dart';

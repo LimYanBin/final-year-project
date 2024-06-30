@@ -1,18 +1,22 @@
-import 'dart:async';
+//checkpoint
+// ignore_for_file: library_private_types_in_public_api
 
+import 'dart:async';
 import 'package:aig/API/database.dart';
 import 'package:aig/add_pages/farm.dart';
 import 'package:aig/display_pages/farm.dart';
 import 'package:aig/pages/auth.dart';
-import 'package:aig/pages/weather_page.dart';
 import 'package:aig/theme.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:aig/main.dart';
 
+// ignore: must_be_immutable
 class FarmPage extends StatefulWidget {
   final String userId;
+  final ValueNotifier<bool> isAdd;
 
-  const FarmPage({super.key, required this.userId});
+  const FarmPage({super.key, required this.userId, required this.isAdd});
 
   @override
   State<FarmPage> createState() => _FarmPageState();
@@ -25,26 +29,30 @@ class _FarmPageState extends State<FarmPage> {
   String? _message;
   Timer? _messageClearTimer;
 
-  bool _showButton = false;
+  @override
+  void initState() {
+    super.initState();
+    widget.isAdd.addListener(_checkAdd);
+  }
 
   @override
   void dispose() {
     _messageClearTimer?.cancel();
+    widget.isAdd.removeListener(_checkAdd);
     super.dispose();
   }
 
-  void _toggleButton() {
-    setState(() {
-      _showButton = !_showButton;
-    });
+  void _checkAdd() {
+    if (widget.isAdd.value) {
+      _navigateToAddFarm();
+      widget.isAdd.value = false;  // Reset after handling
+    }
   }
 
   void _hideButtons() {
-    if (_showButton) {
-      setState(() {
-        _showButton = false;
-      });
-    }
+    HomePageState? homePageState =
+        context.findAncestorStateOfType<HomePageState>();
+    homePageState?.hideButtons();
   }
 
   void _signOut() async {
@@ -158,12 +166,14 @@ class _FarmPageState extends State<FarmPage> {
                     child: StreamBuilder<QuerySnapshot>(
                       stream: db.retrieve_farm(widget.userId),
                       builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
                           return Center(child: CircularProgressIndicator());
                         }
 
                         if (snapshot.hasError) {
-                          return Center(child: Text('Error: ${snapshot.error}'));
+                          return Center(
+                              child: Text('Error: ${snapshot.error}'));
                         }
 
                         if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
@@ -178,7 +188,10 @@ class _FarmPageState extends State<FarmPage> {
                             final doc = profiles[index];
                             final profile = doc.data() as Map<String, dynamic>;
                             profile['id'] = doc.id;
-                            return ProfileCard(profile: profile, userId: widget.userId, onProfileTap: _hideButtons);
+                            return ProfileCard(
+                                profile: profile,
+                                userId: widget.userId,
+                                onProfileTap: _hideButtons);
                           },
                         );
                       },
@@ -186,52 +199,6 @@ class _FarmPageState extends State<FarmPage> {
                   ),
                 ),
               ],
-            ),
-            if (_showButton)
-              ...[
-                Positioned(
-                  bottom: 50,
-                  left: 220,
-                  child: FloatingActionButton(
-                    backgroundColor: AppC.lBlurGrey,
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => WeatherPage(uId: widget.userId, farmId: '', selection: 1,)),
-                      );
-                    },
-                    heroTag: 'weatherForecastButton', // Unique tag
-                    tooltip: 'Weather Forecast',
-                    child: Icon(Icons.cloud),
-                  ),
-                ),
-                Positioned(
-                  bottom: 100,
-                  left: 285,
-                  child: FloatingActionButton(
-                    backgroundColor: AppC.lBlurGrey,
-                    onPressed: () {
-                      // Implement AI chatbot functionality here
-                    },
-                    heroTag: 'aiChatbotButton', 
-                    tooltip: 'AI Assistant',
-                    child: Icon(Icons.miscellaneous_services),
-                  ),
-                ),
-              ],
-            Align(
-              alignment: Alignment.bottomRight,
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: FloatingActionButton(
-                  onPressed: _toggleButton,
-                  shape: CircleBorder(),
-                  backgroundColor: _showButton ? AppC.white : AppC.lBlurGrey,
-                  child: Icon(
-                    _showButton ? Icons.close : Icons.lightbulb_outline,
-                  ),
-                ),
-              ),
             ),
           ],
         ),
@@ -243,7 +210,8 @@ class _FarmPageState extends State<FarmPage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    final String? message = ModalRoute.of(context)!.settings.arguments as String?;
+    final String? message =
+        ModalRoute.of(context)!.settings.arguments as String?;
     if (message != null) {
       setState(() {
         _message = message;
@@ -274,7 +242,9 @@ class ProfileCard extends StatelessWidget {
 
   // Function for handling maximum characters display
   String truncateWithEllipsis(int maxLength, String text) {
-    return (text.length <= maxLength) ? text : '${text.substring(0, maxLength - 3)}...';
+    return (text.length <= maxLength)
+        ? text
+        : '${text.substring(0, maxLength - 3)}...';
   }
 
   @override
@@ -330,18 +300,22 @@ class ProfileCard extends StatelessWidget {
                       children: [
                         Icon(
                           profile['Status'] == 1 ? Icons.eco : Icons.warning,
-                          color: profile['Status'] == 1 ? AppC.green1 : AppC.red,
+                          color:
+                              profile['Status'] == 1 ? AppC.green1 : AppC.red,
                         ),
                         SizedBox(width: 5.0),
                         Text(
                           profile['Status'] == 1 ? 'Healthy' : 'Disease',
-                          style: profile['Status'] == 1 ? AppText.status2 : AppText.status1,
+                          style: profile['Status'] == 1
+                              ? AppText.status2
+                              : AppText.status1,
                         ),
                       ],
                     ),
                     SizedBox(height: 10.0),
                     Text(
-                      truncateWithEllipsis(75, profile['Description'] ?? 'No Description'),
+                      truncateWithEllipsis(
+                          75, profile['Description'] ?? 'No Description'),
                       style: AppText.text2,
                     ),
                   ],

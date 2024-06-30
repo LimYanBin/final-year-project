@@ -1,7 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:aig/API/database.dart';
-import 'package:aig/Treatment/report.dart';
+import 'package:aig/disease/report.dart';
 import 'package:flutter/material.dart';
 import 'package:aig/theme.dart';
 import 'package:image_picker/image_picker.dart';

@@ -1,6 +1,6 @@
 // ignore_for_file: non_constant_identifier_names, avoid_print
 
-import 'package:aig/Treatment/content.dart';
+import 'package:aig/disease/content.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Database {
