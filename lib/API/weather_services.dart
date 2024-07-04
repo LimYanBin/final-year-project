@@ -37,7 +37,7 @@ class WeatherService {
 }
 
 class GeocodingService {
-  final String apiKey = 'AIzaSyCHNVDdM8U_OWgmfdwnNFjrIvddFi-ynWM';
+  final String apiKey = geoApi;
 
   Future<Map<String, double>> getCoordinates(String address) async {
     final response = await http.get(
